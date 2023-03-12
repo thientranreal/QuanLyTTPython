@@ -96,14 +96,29 @@ def checkSimilarity(window, path1, paths):
 
 # Set text entry
 def setTextEnt(ent, txt):
-    ent.delete(0, END)
+    ent.delete(0, 'end')
     ent.insert(0, txt)
 
+# Load data from DB to tree view
+def loadTreeView(CustomerId, treeview):
+    cusSign = snDao.getCustomerSignatureById(CustomerId)
+    if cusSign == -1:
+        messagebox.showerror("Error",
+                             "Không kết nối được database")
+    else:
+        for item in cusSign:
+            treeview.insert('', 'end', value=item)
+
+# Remove all tree view
+def rmAllTreeView(treeview):
+    for record in treeview.get_children():
+        treeview.delete(record)
+    
 # Main#############################################################################
 def SignatureValid_GUI(CustomerId):
     root = Tk()
     root.title("Xác nhận chữ ký")
-    root.geometry("800x300")
+    root.geometry("1000x500")
 
 # Frame Thong Tin Chung
     # Create frame thong tin chung
@@ -213,6 +228,106 @@ def SignatureValid_GUI(CustomerId):
     label4.grid(row=5, column=0, pady = 2)
     # End Add empty rows
 # End Frame Xac Nhan Chu Ky
+
+# Frame Tree View For Customers' Signature
+    frameTreeView = Frame(root)
+    frameTreeView.grid(row=1, column=1)
+    
+    # Create entry and buttons
+    pathEntry = Entry(frameTreeView, font=10)
+    pathEntry.grid(row=0, column=0, pady = 2, padx = 2)
+    
+    frameBtn = Frame(frameTreeView)
+    frameBtn.grid(row=0, column=1)
+    
+    add_button = Button(
+        frameBtn, text="Thêm", font=5)
+    add_button.grid(row=0, column=0, pady = 2)
+    
+    del_button = Button(
+        frameBtn, text="Xóa", font=5)
+    del_button.grid(row=0, column=1, pady = 2)
+    
+    mod_button = Button(
+        frameBtn, text="Sửa", font=5)
+    mod_button.grid(row=0, column=2, pady = 2)
+    
+    # Create tree view
+    tv = ttk.Treeview(frameTreeView, columns=(1,2), show="headings", height="5")
+    tv.grid(row=1, column=0, columnspan=2, pady = 2)
+    tv.heading(1, text='Customer Id')
+    tv.heading(2, text='Image Path')
+    
+    # Get customer signature from database show to tree view
+    loadTreeView(CustomerId, tv)
+        
+    # Event listener ###################################################
+    
+    # Tree view select handler
+    def treeViewHandler(event):
+        for sel in tv.selection():
+            fileName = tv.item(sel)['values'][1].split('/')[-1]
+            setTextEnt(pathEntry, fileName)
+    # Add selection event for tree view
+    tv.bind('<<TreeviewSelect>>', treeViewHandler)
+    
+    # Event listener for add button
+    def addCustomerSignature():
+        path = pathEntry.get().strip()
+        if path == '':
+            messagebox.showerror("Error",
+                                  "Không được bỏ trống đường dẫn chữ ký")
+            return
+        
+        defaultCusImgPath = f'SignatureImg/{CustomerId}/{path}'
+        res = snDao.addCustomerSignature(CustomerId, defaultCusImgPath)
+        if res == -1:
+            messagebox.showerror("Error",
+                                  "Thêm thất bại")
+        else:
+            rmAllTreeView(tv)
+            loadTreeView(CustomerId, tv)
+    add_button.config(command=lambda: addCustomerSignature())
+    
+    # End Event listener ###################################################
+    
+# End Frame Tree View For Customers' Signature
     
     root.mainloop()
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
