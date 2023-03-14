@@ -5,6 +5,11 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
 from SignatureValid import SignatureValid_DAO as snDao
+import os
+import shutil
+
+# Get absolute base directory
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Mach Threshold
 THRESHOLD = 85
@@ -36,27 +41,26 @@ def browsefunc(ent):
     setTextEnt(ent, filename)
 
 # Check similarity
-def checkSimilarity(window, path1, paths):
+def checkSimilarity(path1, treeview):
     # check if path1 is empty
     if path1.strip() == '':
         messagebox.showerror("Error",
                              "Chưa chọn hình cần xác nhận")
         return
     
-    # check if get paths is available
-    if paths == -1:
-        messagebox.showerror("Error",
-                             "Không kết nối được database")
-        return
+    # Get imgage file from tree view
+    fileImg = []
+    for record in treeview.get_children():
+        fileName = treeview.item(record)['values'][0]
+        fileImg.append(fileName)
         
     # check paths is empty
-    if len(paths) == 0:
+    if len(fileImg) == 0:
         messagebox.showerror("Error",
                              "Khách hàng chưa có chữ ký mẫu")
         return
     
-    for path in paths:
-        path = path[0]
+    for path in fileImg:
         
         # Match signature
         try:
@@ -100,14 +104,17 @@ def setTextEnt(ent, txt):
     ent.insert(0, txt)
 
 # Load data from DB to tree view
-def loadTreeView(CustomerId, treeview):
-    cusSign = snDao.getCustomerSignatureById(CustomerId)
-    if cusSign == -1:
-        messagebox.showerror("Error",
-                             "Không kết nối được database")
-    else:
-        for item in cusSign:
-            treeview.insert('', 'end', value=item)
+def loadTreeView(SignaturePath, treeview):
+    # Get file in customer signature folder
+    fileImg = []
+    for root, dirs, files in os.walk(SignaturePath):
+        for file in files:
+            if file.endswith('png') or file.endswith('jpg') or file.endswith('jpeg'):
+                fileImg.append(f'{SignaturePath}/{file}')
+                
+    # Show files on tree view
+    for item in fileImg:
+        treeview.insert('', 'end', value=item)
 
 # Remove all tree view
 def rmAllTreeView(treeview):
@@ -115,10 +122,17 @@ def rmAllTreeView(treeview):
         treeview.delete(record)
     
 # Main#############################################################################
-def SignatureValid_GUI(CustomerId):
-    root = Tk()
-    root.title("Xác nhận chữ ký")
-    root.geometry("1000x500")
+def SignatureValid_GUI(CustomerId, root):
+
+    # get data from customer
+    customerInfo = snDao.getCustomerById(CustomerId)
+    
+    if customerInfo == -1:
+        print("Không kết được database")
+        return
+    if customerInfo == None:
+        print("Khách hàng không tồn tại")
+        return
 
 # Frame Thong Tin Chung
     # Create frame thong tin chung
@@ -165,34 +179,33 @@ def SignatureValid_GUI(CustomerId):
     cusSexLb.grid(row=6, column=0, sticky=W, pady = 2)
     cusSexTxt.grid(row=6, column=1, sticky=W, pady = 2)
     
-    # get data from customer then show it to entry
-    customerInfo = snDao.getCustomerById(CustomerId)
+    # Input for customer signature path
+    cusPathLb = Label(frameTTChung, text="Thư mục chữ ký:", font=10)
+    cusPathTxt = Label(frameTTChung, text="Thư mục chữ ký:", font=10)
+    cusPathLb.grid(row=7, column=0, sticky=W, pady = 2)
+    cusPathTxt.grid(row=7, column=1, sticky=W, pady = 2)
     
-    if customerInfo == -1:
-        messagebox.showerror("Error",
-                             "Không kết nối được database")
-    # if customer is not existed
-    elif customerInfo == None:
-        Na = 'N/A'
-        cusIdTxt.config(text = Na)
-        cusNameTxt.config(text = Na)
-        cusBdTxt.config(text = Na)
-        cusAddTxt.config(text = Na)
-        cusPhoneTxt.config(text = Na)
-        cusSexTxt.config(text = Na)
-    else:
-        cusIdTxt.config(text = customerInfo[0])
-        cusNameTxt.config(text = customerInfo[1])
-        cusBdTxt.config(text = customerInfo[2])
-        cusAddTxt.config(text = customerInfo[3])
-        cusPhoneTxt.config(text = customerInfo[4])
-        cusSexTxt.config(text = customerInfo[5])
+    # Show data to thong tin chung
+    cusIdTxt.config(text = customerInfo[0])
+    cusNameTxt.config(text = customerInfo[1])
+    cusBdTxt.config(text = customerInfo[2])
+    cusAddTxt.config(text = customerInfo[3])
+    cusPhoneTxt.config(text = customerInfo[4])
+    cusSexTxt.config(text = customerInfo[5])
+    cusPathTxt.config(text = customerInfo[6])
+        
+    # Create folder for signature customer
+    if not os.path.exists(cusPathTxt.cget("text")):
+        os.mkdir(cusPathTxt.cget("text"))
+        messagebox.showinfo("Created",
+                            f"Đã tạo thành công thư mục {cusPathTxt.cget('text')}")
+        
 # End Frame Thong Tin Chung
     
 # Frame Xac Nhan Chu Ky
     # Create frame xac nhan chu ky
     frameChuKy = Frame(root)
-    frameChuKy.grid(row=0, column=1, padx = 40, pady = 20)
+    frameChuKy.grid(row=0, column=1, padx = 20, pady = 20, sticky=N)
     
     # Create title Xac nhan chu ky
     titleIdLb = Label(frameChuKy, text="Xác nhận chữ ký", font=("Arial", 15))
@@ -206,94 +219,102 @@ def SignatureValid_GUI(CustomerId):
     imageBrowse = Button(
         frameChuKy, text="Browse", font=10, command=lambda : browsefunc(ent=imageEntry))
     imageBrowse.grid(row=1, column=1, pady = 2, padx=5)
-    
-    # Get customer's signature image paths
-    paths = snDao.getImgPathById(CustomerId)
 
     # Create check signature button
-    compare_button = Button(
-        frameChuKy, text="Kiểm tra", font=10, command=lambda: checkSimilarity(window=root,
-                                                                       path1=imageEntry.get(),
-                                                                       paths=paths))
+    compare_button = Button(frameChuKy, text="Kiểm tra", font=10)
     compare_button.grid(row=2, column=0, columnspan=2, pady = 2)
-    
-    # Add empty rows
-    label2 = Label(frameChuKy, text="", font=10)
-    label2.grid(row=3, column=0, pady = 2)
-    
-    label3 = Label(frameChuKy, text="", font=10)
-    label3.grid(row=4, column=0, pady = 2)
-    
-    label4 = Label(frameChuKy, text="", font=10)
-    label4.grid(row=5, column=0, pady = 2)
-    # End Add empty rows
 # End Frame Xac Nhan Chu Ky
 
 # Frame Tree View For Customers' Signature
     frameTreeView = Frame(root)
-    frameTreeView.grid(row=1, column=1)
+    frameTreeView.grid(row=1, column=1, padx = 20, pady = 20)
+    
+    # Title Thêm chữ ký
+    modSignLb = Label(frameTreeView, text="Thêm xóa chữ ký", font=("Arial", 15))
+    modSignLb.grid(row=0, column=0, columnspan=2, pady = 2)
     
     # Create entry and buttons
-    pathEntry = Entry(frameTreeView, font=10)
-    pathEntry.grid(row=0, column=0, pady = 2, padx = 2)
-    
+    signFileImg = Label(frameTreeView, text="", font=10)
+    signFileImg.grid(row=1, column=0, pady = 2)
     frameBtn = Frame(frameTreeView)
-    frameBtn.grid(row=0, column=1)
+    frameBtn.grid(row=1, column=1)
     
-    add_button = Button(
-        frameBtn, text="Thêm", font=5)
+    add_button = Button(frameBtn, text="Thêm", font=5)
     add_button.grid(row=0, column=0, pady = 2)
     
-    del_button = Button(
-        frameBtn, text="Xóa", font=5)
+    del_button = Button(frameBtn, text="Xóa", font=5)
     del_button.grid(row=0, column=1, pady = 2)
     
-    mod_button = Button(
-        frameBtn, text="Sửa", font=5)
-    mod_button.grid(row=0, column=2, pady = 2)
-    
     # Create tree view
-    tv = ttk.Treeview(frameTreeView, columns=(1,2), show="headings", height="5")
-    tv.grid(row=1, column=0, columnspan=2, pady = 2)
-    tv.heading(1, text='Customer Id')
-    tv.heading(2, text='Image Path')
+    tv = ttk.Treeview(frameTreeView, columns=(1,), show="headings", height="5")
+    tv.grid(row=2, column=0, pady = 2)
+    tv.heading(1, text='Image Path')
     
     # Get customer signature from database show to tree view
-    loadTreeView(CustomerId, tv)
+    loadTreeView(cusPathTxt.cget("text"), tv)
         
     # Event listener ###################################################
     
     # Tree view select handler
     def treeViewHandler(event):
         for sel in tv.selection():
-            fileName = tv.item(sel)['values'][1].split('/')[-1]
-            setTextEnt(pathEntry, fileName)
+            fileName = tv.item(sel)['values'][0]
+            signFileImg.config(text=fileName)
+            
     # Add selection event for tree view
     tv.bind('<<TreeviewSelect>>', treeViewHandler)
     
     # Event listener for add button
     def addCustomerSignature():
-        path = pathEntry.get().strip()
-        if path == '':
-            messagebox.showerror("Error",
-                                  "Không được bỏ trống đường dẫn chữ ký")
+        srcFile = askopenfilename(filetypes=([
+            ("image", ".jpeg"),
+            ("image", ".png"),
+            ("image", ".jpg"),
+        ]))
+        if srcFile == '':
+            return
+        # Get file name and then create destination for copy
+        desFile = f'{cusPathTxt.cget("text")}/{srcFile.split("/")[-1]}'
+        
+        # Copy file from source to customer's signature folder
+        shutil.copyfile(srcFile, desFile)
+        messagebox.showinfo("Created",
+                            f"Đã thêm thành công {desFile}")
+        
+        rmAllTreeView(tv)
+        loadTreeView(cusPathTxt.cget("text"), tv)
+        
+    add_button.config(command=lambda: addCustomerSignature())
+    
+    # Event listener for delete button
+    def delCustomerSignature():
+        imgFile = signFileImg.cget("text")
+        if imgFile == '':
+            messagebox.showinfo("Info",
+                                "Xin chọn file cần xóa")
             return
         
-        defaultCusImgPath = f'SignatureImg/{CustomerId}/{path}'
-        res = snDao.addCustomerSignature(CustomerId, defaultCusImgPath)
-        if res == -1:
-            messagebox.showerror("Error",
-                                  "Thêm thất bại")
+        # Delete image file
+        if os.path.exists(imgFile):
+            os.remove(imgFile)
+            messagebox.showinfo("Deleted",
+                                f"Đã xóa {imgFile}")
         else:
-            rmAllTreeView(tv)
-            loadTreeView(CustomerId, tv)
-    add_button.config(command=lambda: addCustomerSignature())
+            messagebox.showerror("Error",
+                                 "File không tồn tại")
+            return
+        
+        rmAllTreeView(tv)
+        loadTreeView(cusPathTxt.cget("text"), tv)
+        
+    del_button.config(command=lambda: delCustomerSignature())
+    
+    # Add event listener for check signature button
+    compare_button.config(command=lambda: checkSimilarity(imageEntry.get(), tv))
     
     # End Event listener ###################################################
     
 # End Frame Tree View For Customers' Signature
-    
-    root.mainloop()
 
     
     

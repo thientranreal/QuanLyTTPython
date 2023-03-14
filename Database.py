@@ -14,17 +14,8 @@ c.execute("""
                 DateOfBirth text,
                 Address text,
                 Phone text,
-                Sex text
-            )
-          """)
-          
-#  CREATE TABLE CustomerSignature
-c.execute("""
-              CREATE TABLE CustomerSignature (
-                CustomerID text NOT NULL,
-                ImgPath text NOT NULL,
-                PRIMARY KEY (ImgPath, CustomerID)
-            	FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
+                Sex text,
+                SignatureFolder text
             )
           """)
           
@@ -86,23 +77,11 @@ c.execute("""
 c.execute("""
               INSERT INTO Customer
                 VALUES
-                ('KH01', 'Nguyễn Thị Ánh', '01/03/1975', '123 Nguyễn Văn Cừ, Quận 1, TP.HCM', '0901234567', 'Nữ'),
-                ('KH02', 'Lê Văn Đức', '20/05/1998', '456 Trần Hưng Đạo, Quận 5, TP.HCM', '0909876543', 'Nam'),
-                ('KH03', 'Phạm Thị Mai', '17/03/2000', '789 Nguyễn Thị Minh Khai, Quận 3, TP.HCM', '0902223333', 'Nữ'),
-                ('KH04', 'Nguyễn Văn Hưng', '29/12/1980', '555 Lê Lợi, Quận 1, TP.HCM', '0904445555', 'Nam'),
-                ('KH05', 'Trần Thị Thanh', '01/12/1975', '888 Phạm Ngọc Thạch, Quận 3, TP.HCM', '0906667777', 'Nữ');
-          """)
-          
-# INSERT INTO CustomerSignature
-c.execute("""
-          INSERT INTO CustomerSignature
-            VALUES 
-            ('KH01', 'SignatureImg/KH01/1.png'),
-            ('KH01', 'SignatureImg/KH01/2.png'),
-            ('KH01', 'SignatureImg/KH01/3.png'),
-            ('KH02', 'SignatureImg/KH02/1.png'),
-            ('KH02', 'SignatureImg/KH02/2.png'),
-            ('KH02', 'SignatureImg/KH02/3.png');
+                ('KH01', 'Nguyễn Thị Ánh', '01/03/1975', '123 Nguyễn Văn Cừ, Quận 1, TP.HCM', '0901234567', 'Nữ', 'SignatureImg/KH01'),
+                ('KH02', 'Lê Văn Đức', '20/05/1998', '456 Trần Hưng Đạo, Quận 5, TP.HCM', '0909876543', 'Nam', 'SignatureImg/KH02'),
+                ('KH03', 'Phạm Thị Mai', '17/03/2000', '789 Nguyễn Thị Minh Khai, Quận 3, TP.HCM', '0902223333', 'Nữ', 'SignatureImg/KH03'),
+                ('KH04', 'Nguyễn Văn Hưng', '29/12/1980', '555 Lê Lợi, Quận 1, TP.HCM', '0904445555', 'Nam', 'SignatureImg/KH04'),
+                ('KH05', 'Trần Thị Thanh', '01/12/1975', '888 Phạm Ngọc Thạch, Quận 3, TP.HCM', '0906667777', 'Nữ', 'SignatureImg/KH05');
           """)
           
 # INSERT INTO Employee

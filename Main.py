@@ -1,3 +1,3 @@
-from SignatureValid import SignatureValid_GUI as sn
+from MainInterface import MainInterface as mGui
 
-sn.SignatureValid_GUI("KH01")
+mGui.MainInterface()
