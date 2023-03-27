@@ -7,6 +7,7 @@ from tkinter.filedialog import askopenfilename
 from SignatureValid import SignatureValid_DAO as snDao
 import os
 import shutil
+import numpy as np
 
 # Get absolute base directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -20,16 +21,51 @@ def match(path1, path2):
     img1 = cv2.imread(path1)
     img2 = cv2.imread(path2)
     
+    # Convert to HSV format
+    hsv1 = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV)
+    hsv2 = cv2.cvtColor(img2, cv2.COLOR_BGR2HSV)
+
+    # Define lower and upper color threshold
+    lower = np.array([90, 38, 0])
+    upper = np.array([145, 255, 255])
+
+    # Generate mask
+    mask1 = cv2.inRange(hsv1, lower, upper)
+    mask2 = cv2.inRange(hsv2, lower, upper)
+
+    # Detect signature for img1
+    contours, hierarchy = cv2.findContours(mask1, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    for cnt in contours:
+        x,y,w,h = cv2.boundingRect(cnt)
+        if w > 50 and h > 50:
+            imgTemp1 = img1[y:y+h,x:x+w]
+            
+    # Detect signature for img2
+    contours2, hierarchy2 = cv2.findContours(mask2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    for cnt in contours2:
+        x,y,w,h = cv2.boundingRect(cnt)
+        if w > 50 and h > 50:
+            imgTemp2 = img2[y:y+h,x:x+w]
+
+    # Create new image
+    signature1 = np.zeros((512,512,3), np.uint8)
+    signature2 = np.zeros((512,512,3), np.uint8)
+
+    # Copy signature to new image
+    signature1[100:100+imgTemp1.shape[0], 100:100+imgTemp1.shape[1]] = imgTemp1
+    signature2[100:100+imgTemp2.shape[0], 100:100+imgTemp2.shape[1]] = imgTemp2
+    
     # turn images to grayscale
-    img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-    img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+    signature1 = cv2.cvtColor(signature1, cv2.COLOR_BGR2GRAY)
+    signature2 = cv2.cvtColor(signature2, cv2.COLOR_BGR2GRAY)
     
     # resize images for comparison
-    img1 = cv2.resize(img1, (300, 300))
-    img2 = cv2.resize(img2, (300, 300))
-    similarity_value = "{:.2f}".format(ssim(img1, img2)*100)
+    # signature1 = cv2.resize(signature1, (300, 300))
+    # signature2 = cv2.resize(signature2, (300, 300))
     
-    return float(similarity_value)
+    similarity_value = "{:.2f}".format(ssim(signature1, signature2)*100)
+    
+    return (float(similarity_value), signature1, signature2)
 
 # Browse file function
 def browsefunc(ent):
@@ -64,17 +100,21 @@ def checkSimilarity(path1, treeview):
         
         # Match signature
         try:
-            matchValue = match(path1, path)
+            matchValue, signature1, signature2 = match(path1, path)
         except Exception:
             messagebox.showerror("Error",
                                  "Không đọc được chữ ký mẫu. Xin kiểm tra lại đường dẫn của khách hàng")
             return
         
         # read the images
-        img1 = cv2.imread(path1)
-        img2 = cv2.imread(path)
-        img1 = cv2.resize(img1, (300, 300))
-        img2 = cv2.resize(img2, (300, 300))
+        # img1 = cv2.imread(path1)
+        # img2 = cv2.imread(path)
+        # img1 = cv2.resize(img1, (300, 300))
+        # img2 = cv2.resize(img2, (300, 300))
+        
+        # turn images to color
+        signature1 = cv2.cvtColor(signature1, cv2.COLOR_GRAY2BGR)
+        signature2 = cv2.cvtColor(signature2, cv2.COLOR_GRAY2BGR)
         
         textPosition = (10, 50)
         
@@ -82,18 +122,20 @@ def checkSimilarity(path1, treeview):
             # green color
             color = (0,255,0)
             # write checking value on image
-            cv2.putText(img2, f'Matched: {matchValue}', textPosition, cv2.FONT_HERSHEY_SIMPLEX, 
+            cv2.putText(signature2, f'Matched: {matchValue}', textPosition, cv2.FONT_HERSHEY_SIMPLEX, 
                         1, color, 2, cv2.LINE_AA)
         else:
             # red color
             color = (0,0,255)
             # write checking value on image
-            cv2.putText(img2, f'Matched: {matchValue}', textPosition, cv2.FONT_HERSHEY_SIMPLEX, 
+            cv2.putText(signature2, f'Matched: {matchValue}', textPosition, cv2.FONT_HERSHEY_SIMPLEX, 
                         1, color, 2, cv2.LINE_AA)
             
         # display both images
-        cv2.imshow("Hinh can kiem tra", img1)
-        cv2.imshow("Hinh goc", img2)
+        # cv2.imshow("Hinh can kiem tra da duoc nhan dang", signature1)
+        # cv2.imshow("Hinh goc da duoc nhan dang", signature2)
+        cv2.imshow("Hinh can kiem tra", signature1)
+        cv2.imshow("Hinh goc", signature2)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
         
@@ -273,8 +315,9 @@ def SignatureValid_GUI(CustomerId, root):
         ]))
         if srcFile == '':
             return
-        # Get file name and then create destination for copy
-        desFile = f'{cusPathTxt.cget("text")}/{srcFile.split("/")[-1]}'
+        # Get how many file then increment to have a file name and then create destination for copy
+        numFiles = len(os.listdir(cusPathTxt.cget("text")))
+        desFile = f'{cusPathTxt.cget("text")}/{numFiles + 1}.{srcFile.split(".")[-1]}'
         
         # Copy file from source to customer's signature folder
         shutil.copyfile(srcFile, desFile)

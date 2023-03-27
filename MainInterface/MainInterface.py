@@ -4,7 +4,7 @@ from SignatureValid import SignatureValid_GUI as sn
 def MainInterface():
     root = Tk()
     root.title("Quản lý thông tin khách hàng")
-    root.geometry("1000x700")
+    root.geometry("2000x700")
     
     # Create frame feature
     frameFeature = Frame(root)
