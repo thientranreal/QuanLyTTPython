@@ -6,7 +6,8 @@ import os
 from tkinter import colorchooser
 from configparser import ConfigParser
 
-def EmployeeAccount():
+def EmployeeAccount(parentForm):
+    parentForm.withdraw()
     root = Tk()
     root.title('Quan li tai khoan nhan vien')
     root.geometry("800x500")
@@ -21,7 +22,11 @@ def EmployeeAccount():
     saved_secondary_color = parser.get('colors', 'secondary_color')
     saved_highlight_color = parser.get('colors', 'highlight_color')
 
+    def on_closing():
+        parentForm.deiconify()
+        root.destroy()
 
+    root.protocol("WM_DELETE_WINDOW", on_closing)
 
 
 

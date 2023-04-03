@@ -6,7 +6,8 @@ import os
 from tkinter import colorchooser
 from configparser import ConfigParser
 
-def Employee():
+def Employee(parentForm):
+    parentForm.withdraw()
     root = Tk()
     root.title('Quan li nhan vien')
     root.geometry("950x500")
@@ -21,9 +22,11 @@ def Employee():
     saved_secondary_color = parser.get('colors', 'secondary_color')
     saved_highlight_color = parser.get('colors', 'highlight_color')
 
+    def on_closing():
+        parentForm.deiconify()
+        root.destroy()
 
-
-
+    root.protocol("WM_DELETE_WINDOW", on_closing)
 
     def query_database():
         #Clear the Treeview

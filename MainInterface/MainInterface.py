@@ -6,8 +6,8 @@ from Employee import EmployeeAccount as empacc
 def MainInterface():
     root = Tk()
     root.title("Quản lý thông tin khách hàng")
-    root.geometry("2000x700")
-    
+    root.geometry("1300x700")
+
     # Create frame feature
     frameFeature = Frame(root)
     frameFeature.grid(row=0, column=0, padx = 20, pady = 20, sticky=N)
@@ -39,14 +39,14 @@ def MainInterface():
     customerManageBtn.config(command=lambda: customerManageBtnHandle())
     
     # Add click event for employeeManageBtn
-    def employeeManageBtnHandle():
-        emp.Employee()
-    employeeManageBtn.config(command=lambda: employeeManageBtnHandle())
+    # def employeeManageBtnHandle():
+    #     emp.Employee()
+    employeeManageBtn.config(command=lambda: emp.Employee(root))
     
     # Add click event for employeeAccBtn
-    def employeeAccBtnHandle():
-        empacc.EmployeeAccount()
-    employeeAccBtn.config(command=lambda: employeeAccBtnHandle())
+    # def employeeAccBtnHandle():
+    #     empacc.EmployeeAccount()
+    employeeAccBtn.config(command=lambda: empacc.EmployeeAccount(root))
     
     # Add click event for transactionBtn
     def transactionBtnHandle():
