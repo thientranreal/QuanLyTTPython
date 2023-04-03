@@ -47,8 +47,6 @@ def MainInterface():
     def employeeAccBtnHandle():
         empacc.EmployeeAccount()
     employeeAccBtn.config(command=lambda: employeeAccBtnHandle())
-
-    employeeManageBtn.config(command=lambda: employeeManageBtnHandle())
     
     # Add click event for transactionBtn
     def transactionBtnHandle():
