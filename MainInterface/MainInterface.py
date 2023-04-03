@@ -1,5 +1,7 @@
 from tkinter import *
 from SignatureValid import SignatureValid_GUI as sn
+from Employee import Employee as emp
+from Employee import EmployeeAccount as empacc
 
 def MainInterface():
     root = Tk()
@@ -21,8 +23,11 @@ def MainInterface():
     employeeManageBtn = Button(frameFeature, text="Quản lý nhân viên", font=10)
     employeeManageBtn.grid(row=2, column=0, pady = 2, sticky=W)
     
+    employeeAccBtn = Button(frameFeature, text="Quản lý tài khoản nhân viên", font=10)
+    employeeAccBtn.grid(row=3, column=0, pady = 2, sticky=W)
+    
     transactionBtn = Button(frameFeature, text="Giao dịch", font=10)
-    transactionBtn.grid(row=3, column=0, pady = 2, sticky=W)
+    transactionBtn.grid(row=4, column=0, pady = 2, sticky=W)
     
     # Create frame to perform feature
     framePerform = Frame(root, highlightbackground='black', highlightthickness=1)
@@ -31,12 +36,17 @@ def MainInterface():
     # Add click event for customerManageBtn
     def customerManageBtnHandle():
         pass
-
     customerManageBtn.config(command=lambda: customerManageBtnHandle())
     
     # Add click event for employeeManageBtn
     def employeeManageBtnHandle():
-        pass
+        emp.Employee()
+    employeeManageBtn.config(command=lambda: employeeManageBtnHandle())
+    
+    # Add click event for employeeAccBtn
+    def employeeAccBtnHandle():
+        empacc.EmployeeAccount()
+    employeeAccBtn.config(command=lambda: employeeAccBtnHandle())
 
     employeeManageBtn.config(command=lambda: employeeManageBtnHandle())
     
