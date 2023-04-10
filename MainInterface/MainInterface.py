@@ -2,8 +2,10 @@ from tkinter import *
 from SignatureValid import SignatureValid_GUI as sn
 from Employee import Employee as emp
 from Employee import EmployeeAccount as empacc
+from Customer import Manager
+from Transaction import bang
 
-def MainInterface():
+def MainInterface(accId, permission):
     root = Tk()
     root.title("Quản lý thông tin khách hàng")
     root.geometry("1300x700")
@@ -34,24 +36,18 @@ def MainInterface():
     framePerform.grid(row=0, column=1, padx = 20, pady = 20)
     
     # Add click event for customerManageBtn
-    def customerManageBtnHandle():
-        pass
-    customerManageBtn.config(command=lambda: customerManageBtnHandle())
+    customerManageBtn.config(command=lambda: Manager.mainframe(accId, permission, root))
     
     # Add click event for employeeManageBtn
-    # def employeeManageBtnHandle():
-    #     emp.Employee()
     employeeManageBtn.config(command=lambda: emp.Employee(root))
     
     # Add click event for employeeAccBtn
-    # def employeeAccBtnHandle():
-    #     empacc.EmployeeAccount()
     employeeAccBtn.config(command=lambda: empacc.EmployeeAccount(root))
     
     # Add click event for transactionBtn
     def transactionBtnHandle():
         sn.SignatureValid_GUI('KH01', framePerform)
 
-    transactionBtn.config(command=lambda: transactionBtnHandle())
+    transactionBtn.config(command=lambda: bang.bangGUI(root))
     
     root.mainloop()

@@ -1,3 +1,3 @@
 from MainInterface import MainInterface as mGui
 
-mGui.MainInterface()
+mGui.MainInterface("TK01", "normal")
