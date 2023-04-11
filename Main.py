@@ -1,3 +1,3 @@
-from MainInterface import MainInterface as mGui
+from Login import Login
 
-mGui.MainInterface("TK01", "normal")
+Login.LoginGui()

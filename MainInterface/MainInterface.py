@@ -5,10 +5,19 @@ from Employee import EmployeeAccount as empacc
 from Customer import Manager
 from Transaction import bang
 
-def MainInterface(accId, permission):
+def MainInterface(accId, permission, parentForm):
+    parentForm.withdraw()
+    
+    
     root = Tk()
     root.title("Quản lý thông tin khách hàng")
-    root.geometry("1300x700")
+    root.geometry("500x500")
+    
+    def on_closing():
+        parentForm.deiconify()
+        root.destroy()
+
+    root.protocol("WM_DELETE_WINDOW", on_closing)
 
     # Create frame feature
     frameFeature = Frame(root)
@@ -45,9 +54,6 @@ def MainInterface(accId, permission):
     employeeAccBtn.config(command=lambda: empacc.EmployeeAccount(root))
     
     # Add click event for transactionBtn
-    def transactionBtnHandle():
-        sn.SignatureValid_GUI('KH01', framePerform)
-
-    transactionBtn.config(command=lambda: bang.bangGUI(root))
+    transactionBtn.config(command=lambda: bang.bangGUI(accId, root))
     
     root.mainloop()

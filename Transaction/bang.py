@@ -5,7 +5,7 @@ from tkinter import messagebox
 import datetime
 from SignatureValid import SignatureValid_GUI as sn
 
-def bangGUI(parentForm):
+def bangGUI(accId,parentForm):
     # Tạo đối tượng Signature Valid
     snGui = sn.SignatureValid()
     
@@ -132,7 +132,7 @@ def bangGUI(parentForm):
                              ":CustomerReceiveID,:TransactionDate,:MoneySend,:EmployeeAccountID)",
                              {'TransactionID': generate_code(last_id), 'CustomerTransferID': id.get(),
                               'CustomerReceiveID': None, 'TransactionDate': datetime.datetime.now(),
-                              'MoneySend': money, 'EmployeeAccountID': emloyeeID})
+                              'MoneySend': money, 'EmployeeAccountID': accId})
                     conn.commit()
                     conn.close()
                     messagebox.showerror("Thông báo", "Nạp tiền thành công")
@@ -199,7 +199,7 @@ def bangGUI(parentForm):
                               ":CustomerReceiveID,:TransactionDate,:MoneySend,:EmployeeAccountID)",
                                    {'TransactionID': generate_code(last_id),'CustomerTransferID': id.get(),
                                     'CustomerReceiveID': receiverID_entry.get(),'TransactionDate': datetime.datetime.now(),
-                                    'MoneySend': money,'EmployeeAccountID': emloyeeID})
+                                    'MoneySend': money,'EmployeeAccountID': accId})
                     conn.commit()
                     conn.close()
                     messagebox.showerror("Thông báo", "Nạp tiền thành công")
@@ -252,7 +252,8 @@ def bangGUI(parentForm):
                               ":CustomerReceiveID,:TransactionDate,:MoneySend,:EmployeeAccountID)",
                               {'TransactionID': generate_code(last_id), 'CustomerTransferID': id.get(),
                                'CustomerReceiveID': None, 'TransactionDate': datetime.datetime.now(),
-                               'MoneySend': -(money), 'EmployeeAccountID': emloyeeID})
+                               'MoneySend': -(money), 'EmployeeAccountID': accId})
+                    print(accId)
                     conn.commit()
                     conn.close()
                     messagebox.showerror("Thông báo", "Rút tiền thành công")
@@ -280,6 +281,14 @@ def bangGUI(parentForm):
         else:
             id.delete(0,'end')
             id.insert(0,idAccount)
+            deposit_button.config(state="disabled")
+            transfer_button.config(state="disabled")
+            withdraw_button.config(state="disabled")
+            label.grid_forget()
+            money_entry.grid_forget()
+            receiver_label.grid_forget()
+            receiverID_entry.grid_forget()
+            confirm_button.grid_forget()
 
     def on_select(event):
         # Lấy chỉ mục của dòng được chọn trong treeview
@@ -378,7 +387,6 @@ def bangGUI(parentForm):
         treeExchange.column("EmployeeAccountID", width=120)
     # Đóng kết nối đến cơ sở dữ liệu
     conn.close()
-    treeExchange.update()
 
     # Mở cửa sổ giao diện
     root.mainloop()

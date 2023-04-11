@@ -10,16 +10,14 @@ import shutil
 import numpy as np
 
 class SignatureValid:
+    def __init__(self):
+        self.matchValueLs = []
         
     def Gui(self, CustomerId, parentForm, deposit_button, transfer_button, withdraw_button):
+        self.matchValueLs = []
         
         def average(lst):
             return sum(lst) / len(lst)
-        
-        matchValueLs = []
-        
-        # Get absolute base directory
-        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
         # Mach Threshold
         THRESHOLD = 85
@@ -78,6 +76,8 @@ class SignatureValid:
 
         # Check similarity
         def checkSimilarity(path1, treeview):
+            self.matchValueLs = []
+            
             # check if path1 is empty
             if path1.strip() == '':
                 messagebox.showerror("Error",
@@ -101,7 +101,7 @@ class SignatureValid:
                 # Match signature
                 try:
                     matchValue, signature1, signature2 = match(path1, path)
-                    matchValueLs.append(matchValue)
+                    self.matchValueLs.append(matchValue)
                 except Exception:
                     messagebox.showerror("Error",
                                          "Không đọc được chữ ký mẫu. Xin kiểm tra lại đường dẫn của khách hàng")
@@ -177,17 +177,22 @@ class SignatureValid:
         root = Tk()
         
         def on_closing():
-            if (average(matchValueLs) >= THRESHOLD):
-                deposit_button.config(state="normal")
-                transfer_button.config(state="normal")
-                withdraw_button.config(state="normal")
-            else:
+            try:
+                if (average(self.matchValueLs) >= THRESHOLD):
+                    deposit_button.config(state="normal")
+                    transfer_button.config(state="normal")
+                    withdraw_button.config(state="normal")
+                else:
+                    deposit_button.config(state="disabled")
+                    transfer_button.config(state="disabled")
+                    withdraw_button.config(state="disabled")
+            except Exception:
                 deposit_button.config(state="disabled")
                 transfer_button.config(state="disabled")
                 withdraw_button.config(state="disabled")
-                
-            parentForm.deiconify()
-            root.destroy()
+            finally:
+                parentForm.deiconify()
+                root.destroy()
 
         root.protocol("WM_DELETE_WINDOW", on_closing)
 
