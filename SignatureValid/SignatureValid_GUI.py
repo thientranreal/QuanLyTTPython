@@ -20,59 +20,26 @@ class SignatureValid:
             return sum(lst) / len(lst)
 
         # Mach Threshold
-        THRESHOLD = 85
+        THRESHOLD = 0.8
 
         # Matching signature
-        def match(path1, path2):
-            # read the images
-            img1 = cv2.imread(path1)
-            img2 = cv2.imread(path2)
-            
-            # Convert to HSV format
-            hsv1 = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV)
-            hsv2 = cv2.cvtColor(img2, cv2.COLOR_BGR2HSV)
+        def match(sig1_path, sig2_path):
+            # Load images
+            sig1 = cv2.imread(sig1_path)
+            sig2 = cv2.imread(sig2_path)
 
-            # Define lower and upper color threshold
-            lower = np.array([90, 38, 0])
-            upper = np.array([145, 255, 255])
+            # Convert images to grayscale
+            sig1_gray = cv2.cvtColor(sig1, cv2.COLOR_BGR2GRAY)
+            sig2_gray = cv2.cvtColor(sig2, cv2.COLOR_BGR2GRAY)
 
-            # Generate mask
-            mask1 = cv2.inRange(hsv1, lower, upper)
-            mask2 = cv2.inRange(hsv2, lower, upper)
+            # Resize images
+            sig1_resized = cv2.resize(sig1_gray, (200, 200))
+            sig2_resized = cv2.resize(sig2_gray, (200, 200))
 
-            # Detect signature for img1
-            contours, hierarchy = cv2.findContours(mask1, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            for cnt in contours:
-                x,y,w,h = cv2.boundingRect(cnt)
-                if w > 50 and h > 50:
-                    imgTemp1 = img1[y:y+h,x:x+w]
-                    
-            # Detect signature for img2
-            contours2, hierarchy2 = cv2.findContours(mask2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            for cnt in contours2:
-                x,y,w,h = cv2.boundingRect(cnt)
-                if w > 50 and h > 50:
-                    imgTemp2 = img2[y:y+h,x:x+w]
-
-            # Create new image
-            signature1 = np.zeros((512,512,3), np.uint8)
-            signature2 = np.zeros((512,512,3), np.uint8)
-
-            # Copy signature to new image
-            signature1[100:100+imgTemp1.shape[0], 100:100+imgTemp1.shape[1]] = imgTemp1
-            signature2[100:100+imgTemp2.shape[0], 100:100+imgTemp2.shape[1]] = imgTemp2
+            # Calculate structural similarity index
+            value = ssim(sig1_resized, sig2_resized)
             
-            # turn images to grayscale
-            signature1 = cv2.cvtColor(signature1, cv2.COLOR_BGR2GRAY)
-            signature2 = cv2.cvtColor(signature2, cv2.COLOR_BGR2GRAY)
-            
-            # resize images for comparison
-            # signature1 = cv2.resize(signature1, (300, 300))
-            # signature2 = cv2.resize(signature2, (300, 300))
-            
-            similarity_value = "{:.2f}".format(ssim(signature1, signature2)*100)
-            
-            return (float(similarity_value), signature1, signature2)
+            return (value, sig1_resized, sig2_resized)
 
         # Check similarity
         def checkSimilarity(path1, treeview):
@@ -117,9 +84,9 @@ class SignatureValid:
                 signature1 = cv2.cvtColor(signature1, cv2.COLOR_GRAY2BGR)
                 signature2 = cv2.cvtColor(signature2, cv2.COLOR_GRAY2BGR)
                 
-                textPosition = (10, 50)
+                textPosition = (0, 20)
                 
-                if matchValue >= THRESHOLD:
+                if matchValue > THRESHOLD:
                     # green color
                     color = (0,255,0)
                     # write checking value on image
@@ -178,7 +145,7 @@ class SignatureValid:
         
         def on_closing():
             try:
-                if (average(self.matchValueLs) >= THRESHOLD):
+                if (average(self.matchValueLs) > THRESHOLD):
                     deposit_button.config(state="normal")
                     transfer_button.config(state="normal")
                     withdraw_button.config(state="normal")
