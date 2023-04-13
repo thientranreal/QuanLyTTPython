@@ -8,104 +8,158 @@ from SignatureValid import SignatureValid_DAO as snDao
 import os
 import shutil
 import numpy as np
+from DrawSignature import SignatureCanvas as SC
+from TrainModel import Predict as pd
 
 class SignatureValid:
     def __init__(self):
         self.matchValueLs = []
+        self.regID = ''
         
     def Gui(self, CustomerId, parentForm, deposit_button, transfer_button, withdraw_button):
+        drSign = SC.SignatureCanvas()
+        
         self.matchValueLs = []
+        self.regID = ''
         
         def average(lst):
             return sum(lst) / len(lst)
 
         # Mach Threshold
-        THRESHOLD = 0.8
-
-        # Matching signature
-        def match(sig1_path, sig2_path):
-            # Load images
-            sig1 = cv2.imread(sig1_path)
-            sig2 = cv2.imread(sig2_path)
-
-            # Convert images to grayscale
-            sig1_gray = cv2.cvtColor(sig1, cv2.COLOR_BGR2GRAY)
-            sig2_gray = cv2.cvtColor(sig2, cv2.COLOR_BGR2GRAY)
-
-            # Resize images
-            sig1_resized = cv2.resize(sig1_gray, (200, 200))
-            sig2_resized = cv2.resize(sig2_gray, (200, 200))
-
-            # Calculate structural similarity index
-            value = ssim(sig1_resized, sig2_resized)
-            
-            return (value, sig1_resized, sig2_resized)
-
-        # Check similarity
-        def checkSimilarity(path1, treeview):
-            self.matchValueLs = []
-            
-            # check if path1 is empty
+        THRESHOLD = 0.2
+        
+        def checkSimilarity(path1):
             if path1.strip() == '':
                 messagebox.showerror("Error",
-                                     "Chưa chọn hình cần xác nhận")
+                                      "Chưa chọn hình cần xác nhận")
                 return
             
-            # Get imgage file from tree view
-            fileImg = []
-            for record in treeview.get_children():
-                fileName = treeview.item(record)['values'][0]
-                fileImg.append(fileName)
-                
-            # check paths is empty
-            if len(fileImg) == 0:
-                messagebox.showerror("Error",
-                                     "Khách hàng chưa có chữ ký mẫu")
-                return
+            dataset_path = "SignatureImg"
+            cusLabel = pd.predictSignature(path1, "TrainModel/signature_model.h5")
+            # print(cusLabel)
             
-            for path in fileImg:
+            for label, folder in enumerate(os.listdir(dataset_path)):
+                # Set the path to the subfolder
+                folder_path = os.path.join(dataset_path, folder)
+
+                # Loop over the images in the subfolder
+                for filename in os.listdir(folder_path):
+                    if cusLabel == label:
+                        self.regID = folder
+                        messagebox.showinfo("Xác nhận",
+                                            f"Đã nhận diện được chữ ký của {self.regID}")
+                        return
+        
+        # def detect_signature(image_path):
+        #     # Load the image
+        #     image = cv2.imread(image_path, 0)
+        #     image = cv2.resize(image, (200, 200))
+        #     return image
+
+        # # Matching signature
+        # def match(sig1_path, sig2_path):
+        #     # Load the images
+        #     template = cv2.imread(sig1_path, 0)
+        #     original = cv2.imread(sig2_path, 0)
+            
+        #     # Resize the images
+        #     template = cv2.resize(template, (300, 300))
+        #     original = cv2.resize(original, (300, 300))
+            
+        #     # Create a SIFT detector
+        #     sift = cv2.SIFT_create()
+            
+        #     # Detect and compute keypoints and descriptors
+        #     kp1, desc_1 = sift.detectAndCompute(template, None)
+        #     kp2, desc_2 = sift.detectAndCompute(original, None)
+            
+        #     # Create a matcher
+        #     matcher = cv2.DescriptorMatcher_create(cv2.DescriptorMatcher_FLANNBASED)
+        #     matches_1 = matcher.knnMatch(desc_1, desc_2, 2)
+            
+        #     # Filter matches using the Lowe's ratio test
+        #     good_points = []
+        #     for m,n in matches_1:
+        #         if m.distance < 0.8 * n.distance:
+        #             good_points.append(m)
+            
+        #     # Calculate the ratio of good points to total keypoints
+        #     ratio = len(good_points) / len(kp1)
+
+        #     return (ratio, template, original)
+        #     # signature1 = detect_signature(sig1_path)
+        #     # signature2 = detect_signature(sig2_path)
+            
+        #     # # Calculate structural similarity index
+        #     # value = "{:.5f}".format(ssim(signature1, signature2))
+            
+        #     # return (float(value), signature1, signature2)
+
+        # # Check similarity
+        # def checkSimilarity(path1, treeview):
+        #     self.matchValueLs = []
+            
+        #     # check if path1 is empty
+        #     if path1.strip() == '':
+        #         messagebox.showerror("Error",
+        #                              "Chưa chọn hình cần xác nhận")
+        #         return
+            
+        #     # Get imgage file from tree view
+        #     fileImg = []
+        #     for record in treeview.get_children():
+        #         fileName = treeview.item(record)['values'][0]
+        #         fileImg.append(fileName)
                 
-                # Match signature
-                try:
-                    matchValue, signature1, signature2 = match(path1, path)
-                    self.matchValueLs.append(matchValue)
-                except Exception:
-                    messagebox.showerror("Error",
-                                         "Không đọc được chữ ký mẫu. Xin kiểm tra lại đường dẫn của khách hàng")
-                    return
+        #     # check paths is empty
+        #     if len(fileImg) == 0:
+        #         messagebox.showerror("Error",
+        #                              "Khách hàng chưa có chữ ký mẫu")
+        #         return
+            
+        #     for path in fileImg:
                 
-                # read the images
-                # img1 = cv2.imread(path1)
-                # img2 = cv2.imread(path)
-                # img1 = cv2.resize(img1, (300, 300))
-                # img2 = cv2.resize(img2, (300, 300))
+        #         # Match signature
+        #         try:
+        #             matchValue, signature1, signature2 = match(path1, path)
+        #             self.matchValueLs.append(matchValue)
+        #         except Exception as e:
+        #             messagebox.showerror("Error",
+        #                                  f"{e}")
+        #             return
                 
-                # turn images to color
-                signature1 = cv2.cvtColor(signature1, cv2.COLOR_GRAY2BGR)
-                signature2 = cv2.cvtColor(signature2, cv2.COLOR_GRAY2BGR)
+        #         # read the images
+        #         # img1 = cv2.imread(path1)
+        #         # img2 = cv2.imread(path)
+        #         # img1 = cv2.resize(img1, (300, 300))
+        #         # img2 = cv2.resize(img2, (300, 300))
                 
-                textPosition = (0, 20)
+        #         # turn images to color
+        #         signature1 = cv2.cvtColor(signature1, cv2.COLOR_GRAY2BGR)
+        #         signature2 = cv2.cvtColor(signature2, cv2.COLOR_GRAY2BGR)
                 
-                if matchValue > THRESHOLD:
-                    # green color
-                    color = (0,255,0)
-                    # write checking value on image
-                    cv2.putText(signature2, f'Matched: {matchValue}', textPosition, cv2.FONT_HERSHEY_SIMPLEX, 
-                                1, color, 2, cv2.LINE_AA)
-                else:
-                    # red color
-                    color = (0,0,255)
-                    # write checking value on image
-                    cv2.putText(signature2, f'Matched: {matchValue}', textPosition, cv2.FONT_HERSHEY_SIMPLEX, 
-                                1, color, 2, cv2.LINE_AA)
+        #         textPosition = (0, 50)
+                
+        #         if matchValue > THRESHOLD:
+        #             # green color
+        #             color = (0,255,0)
+        #             # write checking value on image
+        #             cv2.putText(signature2, f'{matchValue}', textPosition, cv2.FONT_HERSHEY_SIMPLEX, 
+        #                         1, color, 2, cv2.LINE_AA)
+        #         else:
+        #             # red color
+        #             color = (0,0,255)
+        #             # write checking value on image
+        #             cv2.putText(signature2, f'{matchValue}', textPosition, cv2.FONT_HERSHEY_SIMPLEX, 
+        #                         1, color, 2, cv2.LINE_AA)
                     
-                # display both images
-                # cv2.imshow("Hinh can kiem tra da duoc nhan dang", signature1)
-                # cv2.imshow("Hinh goc da duoc nhan dang", signature2)
-                cv2.imshow("Hinh can kiem tra", signature1)
-                cv2.imshow("Hinh goc", signature2)
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
+        #         # display both images
+        #         # cv2.imshow("Hinh can kiem tra da duoc nhan dang", signature1)
+        #         # cv2.imshow("Hinh goc da duoc nhan dang", signature2)
+        #         cv2.imshow("Hinh can kiem tra", signature1)
+        #         cv2.imshow("Hinh goc", signature2)
+        #         cv2.waitKey(0)
+        #         cv2.destroyAllWindows()
 
         # Browse file function
         def browsefunc(ent):
@@ -145,7 +199,7 @@ class SignatureValid:
         
         def on_closing():
             try:
-                if (average(self.matchValueLs) > THRESHOLD):
+                if (self.regID == CustomerId):
                     deposit_button.config(state="normal")
                     transfer_button.config(state="normal")
                     withdraw_button.config(state="normal")
@@ -258,6 +312,11 @@ class SignatureValid:
         imageBrowse = Button(
             frameChuKy, text="Browse", font=10, command=lambda : browsefunc(ent=imageEntry))
         imageBrowse.grid(row=1, column=1, pady = 2, padx=5)
+        
+        # Get signature button
+        getSignatureBtn = Button(
+            frameChuKy, text="Ký trực tiếp", font=10, command=lambda : getSignatureBtnHandler(imageEntry, root))
+        getSignatureBtn.grid(row=1, column=2, pady = 2, padx=5)
 
         # Create check signature button
         compare_button = Button(frameChuKy, text="Kiểm tra", font=10)
@@ -281,8 +340,11 @@ class SignatureValid:
         add_button = Button(frameBtn, text="Thêm", font=5)
         add_button.grid(row=0, column=0, pady = 2)
         
+        addDirect_button = Button(frameBtn, text="Thêm trực tiếp", font=5)
+        addDirect_button.grid(row=0, column=1, pady = 2)
+        
         del_button = Button(frameBtn, text="Xóa", font=5)
-        del_button.grid(row=0, column=1, pady = 2)
+        del_button.grid(row=0, column=2, pady = 2)
         
         # Create tree view
         tv = ttk.Treeview(frameTreeView, columns=(1,), show="headings", height="5")
@@ -293,6 +355,20 @@ class SignatureValid:
         loadTreeView(cusPathTxt.cget("text"), tv)
             
         # Event listener ###################################################
+        
+        # Ky truc tiep su kien
+        def getSignatureBtnHandler(ent, root):
+            setTextEnt(ent, 'DrawSignature/temp.png')
+            drSign.CaptureSignature('DrawSignature/temp.png', root)
+            
+        # Them chu ky truc tiep su kien
+        def addCustomerSignatureDirectly():
+            # Get how many file then increment to have a file name and then create destination for copy
+            numFiles = len(os.listdir(cusPathTxt.cget("text")))
+            desFile = f'{cusPathTxt.cget("text")}/{numFiles + 1}.png'
+            drSign.CaptureSignature(desFile, root, tv)
+            
+        addDirect_button.config(command=lambda: addCustomerSignatureDirectly())
         
         # Tree view select handler
         def treeViewHandler(event):
@@ -350,7 +426,7 @@ class SignatureValid:
         del_button.config(command=lambda: delCustomerSignature())
         
         # Add event listener for check signature button
-        compare_button.config(command=lambda: checkSimilarity(imageEntry.get(), tv))
+        compare_button.config(command=lambda: checkSimilarity(imageEntry.get()))
         
         # End Event listener ###################################################
         

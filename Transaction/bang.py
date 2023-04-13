@@ -47,28 +47,13 @@ def bangGUI(accId,parentForm):
     amount_label.grid(row=0,column=0)
     id = tk.Entry(frame_left,width=40)
     id.grid(row=1,column=0)
-
-    #Kiểm tra id
-    def checkId(AccountID):
-        conn = sql.connect("Bank.db")
-        c = conn.cursor()
-        query = "SELECT * FROM CustomerAccount WHERE CustomerAccountID = ?"
-        c.execute(query, (AccountID,))
-        results = c.fetchall()
-        
-        conn.close()
-        if results == []:
-            messagebox.showerror("Thông báo","Không tìm thấy tài khoản khách hàng" )
-            deposit_button.config(state="disabled")
-            transfer_button.config(state="disabled")
-            withdraw_button.config(state="disabled")
-        else:
-            snGui.Gui('KH01', root, deposit_button, transfer_button, withdraw_button)
+    customer_id =""
+    
             
             
     check_button = tk.Button(frame_left,text="Kiểm tra",font=15)
     check_button.grid(row=2,column=0)
-    check_button.config(command=lambda : checkId(id.get()))
+    
 
     #giao diện nhập số tiền
     label = tk.Label(frame_right, font=15)
@@ -116,11 +101,6 @@ def bangGUI(accId,parentForm):
                     c.execute(query, (id.get(),))
                     result = c.fetchone()
                     balance = result[0]
-                    # Lấy mã nv
-                    query = "SELECT EmployeeManageID FROM CustomerAccount WHERE CustomerAccountID = ?"
-                    c.execute(query, (id.get(),))
-                    result = c.fetchone()
-                    emloyeeID = result[0]
                     # Lấy mã giao dịch
                     c.execute('SELECT TransactionID FROM Exchange ORDER BY TransactionID DESC LIMIT 1;')
                     last_id = c.fetchone()[0]
@@ -135,7 +115,8 @@ def bangGUI(accId,parentForm):
                               'MoneySend': money, 'EmployeeAccountID': accId})
                     conn.commit()
                     conn.close()
-                    messagebox.showerror("Thông báo", "Nạp tiền thành công")
+                    messagebox.showinfo("Thông báo", "Nạp tiền thành công")
+                    upDate()
 
             except ValueError:
                 messagebox.showerror("Thông báo", "Vui lòng nhập một số nguyên.")
@@ -167,11 +148,6 @@ def bangGUI(accId,parentForm):
             c.execute(query, (id.get(),))
             result = c.fetchone()
             balance = result[0]
-            # Lấy mã nv
-            query = "SELECT EmployeeManageID FROM CustomerAccount WHERE CustomerAccountID = ?"
-            c.execute(query, (id.get(),))
-            result = c.fetchone()
-            emloyeeID = result[0]
             # Lấy mã giao dịch
             c.execute('SELECT TransactionID FROM Exchange ORDER BY TransactionID DESC LIMIT 1;')
             last_id = c.fetchone()[0]
@@ -202,7 +178,8 @@ def bangGUI(accId,parentForm):
                                     'MoneySend': money,'EmployeeAccountID': accId})
                     conn.commit()
                     conn.close()
-                    messagebox.showerror("Thông báo", "Nạp tiền thành công")
+                    messagebox.showinfo("Thông báo", "Chuyển tiền thành công")
+                    upDate()
 
             except ValueError:
                 messagebox.showerror("Thông báo", "Vui lòng nhập một số nguyên.")
@@ -224,23 +201,19 @@ def bangGUI(accId,parentForm):
         receiverID_entry.grid_forget()
         conn = sql.connect("Bank.db")
         c = conn.cursor()
-
+        query = "SELECT Balance FROM CustomerAccount WHERE CustomerAccountID = ?"
+        c.execute(query, (id.get(),))
+        result = c.fetchone()
+        balance = result[0]
         # Thực hiện nạp tiền khi nhấn nút "Xác nhận"
         def RutTienConfirm():
             try:
                 money = int(money_entry.get())
                 if money <= 10000:
                     messagebox.showerror("Thông báo", "Vui lòng nhập số tiền lớn hơn 10000 Vnđ")
-                else:
-                    query = "SELECT Balance FROM CustomerAccount WHERE CustomerAccountID = ?"
-                    c.execute(query, (id.get(),))
-                    result = c.fetchone()
-                    balance = result[0]
-                    # Lấy mã nv
-                    query = "SELECT EmployeeManageID FROM CustomerAccount WHERE CustomerAccountID = ?"
-                    c.execute(query, (id.get(),))
-                    result = c.fetchone()
-                    emloyeeID = result[0]
+                elif money > balance:
+                    messagebox.showerror("Thông báo", "Số tiền hiện tại không đủ")
+                else:                   
                     # Lấy mã giao dịch
                     c.execute('SELECT TransactionID FROM Exchange ORDER BY TransactionID DESC LIMIT 1;')
                     last_id = c.fetchone()[0]
@@ -253,10 +226,10 @@ def bangGUI(accId,parentForm):
                               {'TransactionID': generate_code(last_id), 'CustomerTransferID': id.get(),
                                'CustomerReceiveID': None, 'TransactionDate': datetime.datetime.now(),
                                'MoneySend': -(money), 'EmployeeAccountID': accId})
-                    print(accId)
                     conn.commit()
                     conn.close()
-                    messagebox.showerror("Thông báo", "Rút tiền thành công")
+                    messagebox.showinfo("Thông báo", "Rút tiền thành công")
+                    upDate()
 
             except ValueError:
                 messagebox.showerror("Thông báo", "Vui lòng nhập một số nguyên.")
@@ -270,7 +243,6 @@ def bangGUI(accId,parentForm):
 
     tilte_label = tk.Label(frame_table,text="Danh sách khách hàng", font=("Arial Bold",15))
     tilte_label.grid(row=0,column=0)
-
     def on_select_TK(event):
         selected_item = event.widget.selection()[0]
         # Lấy dữ liệu từ cột ID của dòng được chọn
@@ -291,11 +263,13 @@ def bangGUI(accId,parentForm):
             confirm_button.grid_forget()
 
     def on_select(event):
+        id.delete(0,'end')
         # Lấy chỉ mục của dòng được chọn trong treeview
         selected_item = event.widget.selection()[0]
         # Lấy dữ liệu từ cột CustomerID của dòng được chọn
+        global customer_id
         customer_id = event.widget.item(selected_item, 'values')[0]
-
+        check_button.config(command=lambda : checkId(id.get(),customer_id))
         # Kiểm tra CustomerID với thuộc tính 1 bảng khác
         conn = sql.connect("Bank.db")
         c = conn.cursor()
@@ -358,7 +332,7 @@ def bangGUI(accId,parentForm):
 
     tree.bind("<<TreeviewSelect>>", on_select)
     tree.grid()
-
+    
     tilte_label_3 = tk.Label(frame_table, text="Lịch sử giao dịch", font=("Arial Bold",15))
     tilte_label_3.grid(row=4, column=0)
     c.execute("SELECT * from Exchange")
@@ -366,7 +340,7 @@ def bangGUI(accId,parentForm):
     treeExchange.grid(row=5, column=0)
     treeExchange["columns"] = ("TransactionID", "CustomerTransferID", "CustomerReceiveID", "TransactionDate", "MoneySend", "EmployeeAccountID")
     treeExchange.configure(height=5)
-
+    
     # Thiết lập thông tin cho các cột
     treeExchange.heading("TransactionID", text="Mã giao dịch")
     treeExchange.heading("CustomerTransferID", text="Mã TK người chuyển")
@@ -374,6 +348,7 @@ def bangGUI(accId,parentForm):
     treeExchange.heading("TransactionDate", text="Thời gian giao dịch")
     treeExchange.heading("MoneySend", text="Số tiền(VNĐ)")
     treeExchange.heading("EmployeeAccountID", text="Mã Nhân viên")
+    conn = sql.connect("Bank.db")
     c.execute("SELECT * FROM Exchange")
     rows = c.fetchall()
     for row in rows:
@@ -385,6 +360,41 @@ def bangGUI(accId,parentForm):
         treeExchange.column("TransactionDate", width=150)
         treeExchange.column("MoneySend", width=100)
         treeExchange.column("EmployeeAccountID", width=120)
+    #Cập nhật lịch sử giao dịch
+    def upDate():
+        # xóa tất cả các item trong Treeview
+        for item in treeExchange.get_children():
+            treeExchange.delete(item)
+    
+        # lấy dữ liệu mới từ cơ sở dữ liệu
+        conn = sql.connect("Bank.db")
+        c = conn.cursor()
+        c.execute("SELECT * FROM Exchange")
+        rows = c.fetchall()
+        conn.close()
+    
+        # thêm item vào Treeview cho mỗi bản ghi dữ liệu mới
+        for row in rows:
+            treeExchange.insert("", "end", values=row)
+    print(customer_id+"1")
+    #Kiểm tra id
+    def checkId(AccountID,customer_id):
+        print(customer_id)
+        conn = sql.connect("Bank.db")
+        c = conn.cursor()
+        query = "SELECT * FROM CustomerAccount WHERE CustomerAccountID = ?"
+        c.execute(query, (AccountID,))
+        results = c.fetchall()
+        
+        conn.close()
+        if results == []:
+            messagebox.showerror("Thông báo","Không tìm thấy tài khoản khách hàng" )
+            deposit_button.config(state="disabled")
+            transfer_button.config(state="disabled")
+            withdraw_button.config(state="disabled")
+        else:
+            snGui.Gui(customer_id, root, deposit_button, transfer_button, withdraw_button)
+
     # Đóng kết nối đến cơ sở dữ liệu
     conn.close()
 

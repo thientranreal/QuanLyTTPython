@@ -4,7 +4,7 @@ import sqlite3 as sql
 conn = sql.connect("Bank.db")
 
 # Create cursor
-c = conn.cursor();
+c = conn.cursor()
 
 # CREATE TABLE Customer
 c.execute("""
