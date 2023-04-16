@@ -1,63 +1,78 @@
 from tkinter import *
 import sqlite3 as sql
 from tkinter import ttk
-from Customer import AddCustomerAccount as Add
-from Customer import Manager as Mg
 from Customer import CustomerAccount as ctmAcc
 from tkinter import messagebox
+from datetime import date
 
-def mainframeAcc(ID, parentForm):
+def mainframeAcc(ID,permission, parentForm):
     parentForm.withdraw()
-    conn = sql.connect("Bank.db")
+    #conn = sql.connect("Bank.db")
+    
+    def get_currentDay():
+        today = date.today()
+        return today.strftime("%d/%m/%Y")
     
     def AddO():
-        root.destroy()
-        Add.AddAccount(ID, parentForm)
+        cusAcc = ctmAcc.CustomerAccount(Balance_field.get(),get_currentDay(),Type_field.get(),ID)
+        if (Balance_field.get() ==""):
+            messagebox.showerror("Error","Chưa nhập số tiền!")
+        elif (Balance_field.get().isdigit() == False):
+            messagebox.showerror("Error","Lỗi nhập số tiền!")
+        elif (Type_field.get() == ""):
+            messagebox.showerror("Error","Chưa nhập loại tài khoản!")
+        else:
+            a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn thêm tài khoản không?")
+            if (a == 'yes'):
+                cusAcc.AddAccountCustomer()
+                Reload()
+            
     
     def EditO():
-        cusAcc = ctmAcc.CustomerAccount(Balance_field.get(),Date_field.get(), Type_field.get(),ID,employeechoosen.get())
+        cusAcc = ctmAcc.CustomerAccount(Balance_field.get(),Date_field.get(), Type_field.get(),ID)
         a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn sửa thông tin tài khoản "+ID_field.get()+" không?")
         if (ID_field.get() == ""):
             messagebox.showerror("Error","Bạn chưa chọn tài khoản muốn sửa thông tin!")
         else:
             if (Balance_field.get() == ""):
                 messagebox.showerror("Error","Chưa nhập số tiền!")
+            elif (Balance_field.get().isdigit() == False):
+                messagebox.showerror("Error","Lỗi nhập số tiền!")
             elif (Type_field.get() == ""):
                 messagebox.showerror("Error","Chưa nhập loại tài khoảng!")
             else:
                 if (a == 'yes'):
                     cusAcc.EditAccountCustomer(ID_field.get())
-                    messagebox.showinfo("","Sửa thành công!")
                     Reload()
     
     def DeleteO():
-        cusAcc = ctmAcc.CustomerAccount(Balance_field.get(),Date_field.get(), Type_field.get(),ID,employeechoosen.get())
+        cusAcc = ctmAcc.CustomerAccount(Balance_field.get(),Date_field.get(), Type_field.get(),ID)
         if (ID_field.get() == ""):
             messagebox.showerror("Error","Bạn chưa chọn tài khoản muốn xoá!")
         else:
             a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn xoá tài khoản "+ID_field.get()+" không?")
             if (a == 'yes'):
                 cusAcc.DeleteAccountCustomer(ID_field.get())
-                messagebox.showinfo("","Xoá thành công!")
                 Reload()
        
     def Clear():
          ID_field.config(state="normal")
          ID_field.delete(0,END)
+         ID_field.config(state="readonly")
          Balance_field.delete(0,END)
          Date_field.config(state="normal")
          Date_field.delete(0,END)
+         Date_field.config(state="readonly")
          Type_field.delete(0,END)
-         employeechoosen.current(0)
     
     def Quit():
         root.destroy()
-        Mg.mainframe()
+        parentForm.deiconify()
         
     
     def Reload():
         root.destroy()
-        mainframeAcc(ID)
+        mainframeAcc(ID,permission,parentForm)
         
     def displaySelectedItem(a):
          ID_field.config(state="normal")
@@ -66,14 +81,12 @@ def mainframeAcc(ID, parentForm):
          Date_field.config(state="normal")
          Date_field.delete(0,END)
          Type_field.delete(0,END)
-         employeechoosen.delete(0,END)
          
          current_item = table.focus()
          ID = table.item(current_item)['values'][0]
          Balance = table.item(current_item)['values'][1]
          Date = table.item(current_item)['values'][2]
          Type = table.item(current_item)['values'][3]
-         EmployeeID = table.item(current_item)['values'][4]
          
          ID_field.insert(0, ID)
          ID_field.config(state="disabled")
@@ -81,16 +94,16 @@ def mainframeAcc(ID, parentForm):
          Date_field.insert(0, Date)
          Date_field.config(state="disabled")
          Type_field.insert(0, Type)
-         employeechoosen.set(EmployeeID)
          
          
     
     def ShowO():
+        conn = sql.connect("Bank.db")
         for item in table.get_children():
             table.delete(item)
         c = conn.cursor()
         sql_show = """
-        SELECT CustomerAccountID,Balance,AccountOpenDate,AccountType,EmployeeManageID
+        SELECT CustomerAccountID,Balance,AccountOpenDate,AccountType,CustomerID
         FROM CustomerAccount
         WHERE CustomerID = '{0}'
         """.format(ID)
@@ -101,7 +114,7 @@ def mainframeAcc(ID, parentForm):
             for i in row:
                 data.append(i)
             table.insert( parent = '', index = 'end', values = data)
-    
+        conn.close()
     root = Tk()
     root.minsize(height=500,width=800)
     def on_closing():
@@ -125,18 +138,18 @@ def mainframeAcc(ID, parentForm):
     root.config(menu=menubar)
     
     #table
-    table = ttk.Treeview(root, columns = ('AccountID','Balance','DateOpen','Type','EmployeeManageID'), show = 'headings')
+    table = ttk.Treeview(root, columns = ('AccountID','Balance','DateOpen','Type','CustomerID'), show = 'headings')
     table.heading('AccountID', text='Account ID')
     table.heading('Balance', text='Balance')
     table.heading('DateOpen', text='Date Open')
     table.heading('Type', text='Type')
-    table.heading('EmployeeManageID', text="EmployeeManagerID")
+    table.heading('CustomerID', text="Customer ID")
     
     table.column('AccountID',width =20,anchor=CENTER)
     table.column('Balance',width=20,anchor=CENTER)
     table.column('DateOpen',width=20,anchor=CENTER)
     table.column('Type',width=20,anchor=CENTER)
-    table.column('EmployeeManageID',width=20,anchor=CENTER)
+    table.column('CustomerID',width=20,anchor=CENTER)
 
     
     scrolly = Scrollbar(table)
@@ -156,36 +169,19 @@ def mainframeAcc(ID, parentForm):
         
     Label(root, text="Type: ").place(relwidth = .19, relheight = .06, relx =.01, rely =.86)
     
-    Label(root, text="Employee Manage ID: ").place(relwidth = .19, relheight = .06, relx =.01, rely =.93)
-    
     # entry items
-    ID_field = Entry(root, font="Times 12")
+    ID_field = Entry(root, font="Times 12",state='readonly')
     ID_field.place(relwidth = .4, relheight = .06, relx =.2, rely =.65)
     
     Balance_field = Entry(root,font="Times 12")
     Balance_field.place(relwidth = .4, relheight = .06, relx =.2, rely =.72)
         
-    Date_field = Entry(root,font="Times 12")
+    Date_field = Entry(root,font="Times 12",state='readonly')
     Date_field.place(relwidth = .4, relheight = .06, relx =.2, rely =.79)
         
     Type_field = Entry(root,font="Times 12")
     Type_field.place(relwidth = .4, relheight = .06, relx =.2, rely =.86)
     
-    nEmployeeID = StringVar()
-    employeechoosen = ttk.Combobox(root,textvariable= nEmployeeID,state='readonly')
-    c = conn.cursor()
-    sql_ID = """
-        SELECT EmployeeID FROM Employee
-    """
-    c.execute(sql_ID)
-    rows = c.fetchall()
-    data = []
-    for row in rows:
-        for i in row:
-            data.append(i)
-    employeechoosen['values'] = (data)
-    employeechoosen.current(0)
-    employeechoosen.place(relwidth = .4, relheight = .06, relx =.2, rely =.93)
     
     # Button
     Button(root,text="ADD",command=AddO).place(relwidth = .3, relheight = .06, relx =.65, rely =.65)

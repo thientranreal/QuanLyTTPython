@@ -31,11 +31,18 @@ def MainInterface(accId, permission, parentForm):
     customerManageBtn = Button(frameFeature, text="Quản lý khách hàng", font=10)
     customerManageBtn.grid(row=1, column=0, pady = 2, sticky=W)
     
-    employeeManageBtn = Button(frameFeature, text="Quản lý nhân viên", font=10)
-    employeeManageBtn.grid(row=2, column=0, pady = 2, sticky=W)
-    
-    employeeAccBtn = Button(frameFeature, text="Quản lý tài khoản nhân viên", font=10)
-    employeeAccBtn.grid(row=3, column=0, pady = 2, sticky=W)
+    if (permission == 'admin'):
+        employeeManageBtn = Button(frameFeature, text="Quản lý nhân viên", font=10)
+        employeeManageBtn.grid(row=2, column=0, pady = 2, sticky=W)
+        
+        employeeAccBtn = Button(frameFeature, text="Quản lý tài khoản nhân viên", font=10)
+        employeeAccBtn.grid(row=3, column=0, pady = 2, sticky=W)
+        
+        # Add click event for employeeManageBtn
+        employeeManageBtn.config(command=lambda: emp.Employee(root))
+        
+        # Add click event for employeeAccBtn
+        employeeAccBtn.config(command=lambda: empacc.EmployeeAccount(root))
     
     transactionBtn = Button(frameFeature, text="Giao dịch", font=10)
     transactionBtn.grid(row=4, column=0, pady = 2, sticky=W)
@@ -46,12 +53,6 @@ def MainInterface(accId, permission, parentForm):
     
     # Add click event for customerManageBtn
     customerManageBtn.config(command=lambda: Manager.mainframe(accId, permission, root))
-    
-    # Add click event for employeeManageBtn
-    employeeManageBtn.config(command=lambda: emp.Employee(root))
-    
-    # Add click event for employeeAccBtn
-    employeeAccBtn.config(command=lambda: empacc.EmployeeAccount(root))
     
     # Add click event for transactionBtn
     transactionBtn.config(command=lambda: bang.bangGUI(accId, root))

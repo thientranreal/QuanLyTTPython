@@ -76,7 +76,7 @@ class SignatureCanvas:
                     self._last = (x, y)
                     return
                 draw.line(((x, y), self._last), (0, 0, 0))
-                cvs.create_line(x, y, self._last[0], self._last[1])
+                cvs.create_line(x, y, self._last[0], self._last[1], width=5)
                 self._last = (x, y)
             else:
                 self._last = (x, y)

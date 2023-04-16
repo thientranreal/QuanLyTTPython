@@ -1,17 +1,20 @@
 import sqlite3 as sql
+from tkinter import messagebox
+from Customer import CustomerAccount as ctmAcc
+from datetime import date
 
-conn = sql.connect("Bank.db")
+#conn = sql.connect("Bank.db")
 class Customer:
     count = 1
-    
-    def __init__(self,CustomerName,DateOfBirth,Address,Phone,Sex,SignatureFolder):
-        #self.CustomerID = self.get_CustomerID()
+    IDSignature = ""
+    def __init__(self,CustomerName,DateOfBirth,Address,Phone,Sex,EmployeeAccountID):
         self.CustomerName = CustomerName
         self.DateOfBirth = DateOfBirth
         self.Address = Address
         self.Phone = Phone
         self.Sex = Sex
-        self.SignatureFolder = SignatureFolder
+        self.EmployeeAccountID = EmployeeAccountID
+        
     
     def create_ID(self):
         if Customer.count < 10 and Customer.count > 0:
@@ -21,6 +24,7 @@ class Customer:
         return ID
     
     def get_CustomerID(self):
+        conn = sql.connect("Bank.db")
         c = conn.cursor()
         sql_ID="""
         SELECT CustomerID FROM Customer
@@ -42,12 +46,9 @@ class Customer:
                     ID = "KH"+str(Customer.count)
                     break
             Customer.count+=1
+        Customer.IDSignature = ID
+        conn.close()
         return ID
-    
-    def ID(self,co):
-        if int(co) < 10 and int(co) > 0:
-            return "KH"+"0"+str(co)
-        else: return "KH"+str(co)
         
     def set_CustomerName(self,CustomerName):
         self.CustomerName = CustomerName
@@ -79,43 +80,50 @@ class Customer:
     def get_Sex(self):
         return self.Sex
     
-    def get_SignatureFolder(self):
-        return self.SignatureFolder
+    def get_Signature(self):
+        s = "SignatureImg/"+str(Customer.IDSignature)
+        return s
     
-    def set_SignatureFolder(self,SignatureFolder):
-        self.SignatureFolder = SignatureFolder
-    
-    def show(self):
-        return self.CustomerID+" - "+self.CustomerName+" - "+self.DateOfBirth+" - "+self.Address+" - "+self.Phone+" - "+self.Sex+" - "+self.SignatureFolder
+    def get_currentDay():
+        today = date.today()
+        return today.strftime("%d/%m/%Y")
     
     def AddCustomer(self):
+        conn = sql.connect("Bank.db")
         c = conn.cursor()
-        sql_add_ctm = """INSERT INTO Customer(CustomerID,CustomerName,DateOfBirth,Address,Phone,Sex,SignatureFolder) 
-        VALUES ("{0}","{1}","{2}","{3}","{4}","{5}","{6}")
-        """.format(self.get_CustomerID(),self.CustomerName,self.DateOfBirth,self.Address,self.Phone,self.Sex,self.SignatureFolder)
+        sql_add_ctm = """INSERT INTO Customer(CustomerID,CustomerName,DateOfBirth,Address,Phone,Sex,SignatureFolder,EmployeeManageID) 
+        VALUES ("{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}")
+        """.format(self.get_CustomerID(),self.CustomerName,self.DateOfBirth,self.Address,self.Phone,self.Sex,self.get_Signature(),self.EmployeeAccountID)
         c.execute(sql_add_ctm)
         conn.commit()
+        messagebox.showinfo("","Thêm thành công!")
+        conn.close()
         
     def DeleteCustomer(self,deleteID):
+        conn = sql.connect("Bank.db")
         c = conn.cursor()
-        sql_delete_ctm ="""
-        DELETE FROM Customer WHERE CustomerID = '{0}'
-        """.format(deleteID)
-        c.execute(sql_delete_ctm)
-        conn.commit()
-        
-        sql_delete_Acc = """
-        DELETE FROM CustomerAccount WHERE CustomerID = '{0}'
-        """.format(deleteID)
-        c.execute(sql_delete_Acc)
-        conn.commit()
+        conn.execute("PRAGMA foreign_keys = ON")
+        try:
+            sql_delete_ctm ="""
+            DELETE FROM Customer WHERE CustomerID = '{0}'
+            """.format(deleteID)
+            c.execute(sql_delete_ctm)
+            conn.commit()
+            messagebox.showinfo("","Xoá thành công!")
+        except sql.IntegrityError:
+            messagebox.showerror("ERROR","Không thể xoá khách hàng vì khách hàng đang tồn tại tài khoảng!")
+        conn.close()
+            
         
     def EditCustomer(self,editID):
+        conn = sql.connect("Bank.db")
         c = conn.cursor()
         sql_edit_ctm ="""
-        UPDATE Customer SET CustomerName = '{0}', DateOfBirth = '{1}', Address = '{2}', Phone = '{3}', Sex = '{4}', SignatureFolder = '{5}'
+        UPDATE Customer SET CustomerName = '{0}', DateOfBirth = '{1}', Address = '{2}', Phone = '{3}', Sex = '{4}',EmployeeManageID = '{5}'
         WHERE CustomerID = '{6}'
-        """.format(self.CustomerName,self.DateOfBirth,self.Address,self.Phone,self.Sex,self.SignatureFolder,editID)
+        """.format(self.CustomerName,self.DateOfBirth,self.Address,self.Phone,self.Sex,self.EmployeeAccountID,editID)
         c.execute(sql_edit_ctm)
         conn.commit()
+        messagebox.showinfo("","Sửa thành công!")
+        conn.close()
         

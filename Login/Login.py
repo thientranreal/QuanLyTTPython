@@ -63,7 +63,7 @@ def LoginGui():
     password_label = tk.Label(login_contentframe, text="Password:  ", font=('Segou UI', 16), bg=bgcolor)
 
     username_entry = tk.Entry(login_contentframe, font=('Segou UI', 18), highlightbackground='black', highlightthickness=0.5)
-    password_entry = tk.Entry(login_contentframe, font=('Segou UI', 18), highlightbackground='black', highlightthickness=0.5)
+    password_entry = tk.Entry(login_contentframe, font=('Segou UI', 18), show='*', highlightbackground='black', highlightthickness=0.5)
 
     login_button = tk.Button(login_contentframe, text="LOGIN", font=('bold', 18),bg='skyblue', padx= 10, pady=15, width=20, fg='white' )
     login_button.place(relx= 0.5, rely= 0.5, anchor=CENTER)

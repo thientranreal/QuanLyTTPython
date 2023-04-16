@@ -1,17 +1,16 @@
 import sqlite3 as sql
+from tkinter import messagebox
 
-conn = sql.connect('Bank.db')
+#conn = sql.connect('Bank.db')
 
 class CustomerAccount:
     count = 1
     
-    def __init__(self,Balance,AccountOpenDate,AccountType,CustomerID,EmployeeManageID):
-        #self.CustomerAccountID = CustomerAccountID 
+    def __init__(self,Balance,AccountOpenDate,AccountType,CustomerID):
         self.Balance = Balance
         self.AccountOpenDate =AccountOpenDate
         self.AccountType = AccountType
         self.CustomerID = CustomerID
-        self.EmployeeManageID = EmployeeManageID
     
     def create_ID_Acc(self):
         if CustomerAccount.count < 10 and CustomerAccount.count > 0:
@@ -21,6 +20,7 @@ class CustomerAccount:
         return IDAcc
     
     def get_CustomerID_Acc(self):
+        conn = sql.connect("Bank.db")
         c = conn.cursor()
         sql_ID = """
         SELECT CustomerAccountID FROM CustomerAccount
@@ -42,6 +42,7 @@ class CustomerAccount:
                     IDAcc = "TKKH"+str(CustomerAccount.count)
                     break
             CustomerAccount.count+=1
+        conn.close()
         return IDAcc
     
     def set_Balance(self,Balance):
@@ -68,34 +69,37 @@ class CustomerAccount:
     def get_CustomerID(self):
         return self.CustomerID
     
-    def set_EmployeeManagerID(self,EmployeeManageID):
-        self.EmployeeManageID = EmployeeManageID
-        
-    def get_EmployeeManageID(self):
-        return self.EmployeeManageID
-    
     def AddAccountCustomer(self):
+        conn = sql.connect("Bank.db")
         c = conn.cursor()
         sql_add_acc = """
-            INSERT INTO CustomerAccount(CustomerAccountID,Balance,AccountOpenDate,AccountType,CustomerID,EmployeeManageID)
-            VALUES ("{0}","{1}","{2}","{3}","{4}","{5}")
-        """.format(self.get_CustomerID_Acc(),self.Balance,self.AccountOpenDate,self.AccountType,self.CustomerID,self.EmployeeManageID)
+            INSERT INTO CustomerAccount(CustomerAccountID,Balance,AccountOpenDate,AccountType,CustomerID)
+            VALUES ("{0}","{1}","{2}","{3}","{4}")
+        """.format(self.get_CustomerID_Acc(),self.Balance,self.AccountOpenDate,self.AccountType,self.CustomerID)
         c.execute(sql_add_acc)
         conn.commit()
+        messagebox.showinfo("","Thêm thành công!")
+        conn.close()
         
     def DeleteAccountCustomer(self,deleteID):
+        conn = sql.connect("Bank.db")
         c = conn.cursor()
         sql_delete_Acc ="""
             DELETE FROM CustomerAccount WHERE CustomerAccountID = '{0}'
         """.format(deleteID)
         c.execute(sql_delete_Acc)
         conn.commit()
+        messagebox.showinfo("","Xoá thành công!")
+        conn.close()
         
     def EditAccountCustomer(self,EditID):
+        conn = sql.connect("Bank.db")
         c = conn.cursor()
         sql_edit_Acc = """
-            UPDATE CustomerAccount SET Balance = '{0}', AccountOpenDate = '{1}',AccountType = '{2}' , CustomerID = '{3}', EmployeeManageID = '{4}'
-            WHERE CustomerAccountID = '{5}'
-        """.format(self.Balance,self.AccountOpenDate,self.AccountType,self.CustomerID,self.EmployeeManageID,EditID)
+            UPDATE CustomerAccount SET Balance = '{0}', AccountOpenDate = '{1}',AccountType = '{2}' , CustomerID = '{3}'
+            WHERE CustomerAccountID = '{4}'
+        """.format(self.Balance,self.AccountOpenDate,self.AccountType,self.CustomerID,EditID)
         c.execute(sql_edit_Acc)
         conn.commit()
+        messagebox.showinfo("","Sửa thành công!")
+        conn.close()

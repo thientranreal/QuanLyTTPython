@@ -3,7 +3,6 @@ from tkinter import *
 from tkinter import ttk
 import sqlite3 as sql
 from tkinter.filedialog import askopenfilename
-from Customer import AddCustomer as Add
 from tkinter import messagebox
 from Customer import ManagerAcc as formAcc
 
@@ -11,22 +10,63 @@ from Customer import ManagerAcc as formAcc
 def mainframe(EmployeeID, permission, parentForm):
     parentForm.withdraw()
     
-    conn = sql.connect("Bank.db")
+    #conn = sql.connect("Bank.db")
     
-    def get_Sex():
-        if (var.get() == 1):
-            return "Nam"
-        else :
-            return "Nữ"
         
     def AddO():
-        root.destroy()
-        Add.Addframe(EmployeeID, permission, parentForm)
+        Ngay = daychoosen.get()+"/"+monthchoosen.get()+"/"+yearchoosen.get()
+        if (permission == 'admin'):
+            cus = ctm.Customer(Name_field.get(),Ngay,Address_field.get(),Phone_field.get(),Sexchoosen.get(),employeechoosen.get())
+            if (Name_field.get() == ""):
+                messagebox.showerror("Error","Không được để trống tên!")
+            elif (Address_field.get() == ""):
+                messagebox.showerror("Error","Không được để trống địa chỉ!")
+            elif (Phone_field.get() == ""):
+                messagebox.showerror("Error","Không được để trống số điện thoại!")
+            elif (Sexchoosen.get() == ""):
+                messagebox.showerror("Error","Chưa chọn giới tính!")
+            elif (daychoosen.get() == "" or monthchoosen.get() == "" or yearchoosen.get() == ""):
+                messagebox.showerror("Error","Chưa chọn ngày tháng năm sinh!")
+            elif (employeechoosen.get() == ""):
+                messagebox.showerror("Error","Chưa chọn tài khoản nhân viên quản lý!")
+            else:
+                if (check_Date() == False):
+                    messagebox.showerror("Error","Lỗi ngày tháng năm sinh!")
+                elif (check_Phone() == False):
+                    messagebox.showerror("Error","Lỗi số điện thoại!")
+                else:
+                    a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn thêm khách hàng không?")
+                    if (a == 'yes'):
+                        cus.AddCustomer()
+                        Reload()
+        else:
+            cus = ctm.Customer(Name_field.get(),Ngay,Address_field.get(),Phone_field.get(),Sexchoosen.get(),EmployeeID)
+            if (Name_field.get() == ""):
+                messagebox.showerror("Error","Không được để trống tên!")
+            elif (Address_field.get() == ""):
+                messagebox.showerror("Error","Không được để trống địa chỉ!")
+            elif (Phone_field.get() == ""):
+                messagebox.showerror("Error","Không được để trống số điện thoại!")
+            elif (Sexchoosen.get() == ""):
+                messagebox.showerror("Error","Chưa chọn giới tính!")
+            elif (daychoosen.get() == "" or monthchoosen.get() == "" or yearchoosen.get() == ""):
+                messagebox.showerror("Error","Chưa chọn ngày tháng năm sinh!")
+            else:
+                if (check_Date() == False):
+                    messagebox.showerror("Error","Lỗi ngày tháng năm sinh!")
+                elif (check_Phone() == False):
+                    messagebox.showerror("Error","Lỗi số điện thoại!")
+                else:
+                    a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn thêm khách hàng không?")
+                    if (a == 'yes'):
+                        cus.AddCustomer()
+                        Reload()
         
     def ShowO():
         for item in table.get_children():
             table.delete(item)
-        if permission == "Admin":
+        if permission == "admin":
+            conn = sql.connect("Bank.db")
             c = conn.cursor()
             sql_show = """
                 SELECT * FROM Customer 
@@ -38,11 +78,13 @@ def mainframe(EmployeeID, permission, parentForm):
                 for i in row:
                     data.append(i)
                 table.insert( parent = '', index = 'end', values = data)
+            conn.close()
         else:
+            conn = sql.connect("Bank.db")
             c = conn.cursor()
             sql_show = """
-                SELECT C.CustomerID,CustomerName,DateOfBirth,Address,Phone,Sex,SignatureFolder
-                FROM Customer C JOIN CustomerAccount CA ON C.CustomerID = CA.CustomerID
+                SELECT *
+                FROM Customer
                 WHERE EmployeeManageID = '{0}'
             """.format(EmployeeID)
             c.execute(sql_show)
@@ -52,11 +94,12 @@ def mainframe(EmployeeID, permission, parentForm):
                 for i in row:
                     data.append(i)
                 table.insert( parent = '', index = 'end', values = data)
+            conn.close()
             
     def check_Date():
         if (monthchoosen.get() == "02"):
-            if (yearchoosen.get() == "1952" or yearchoosen.get() == "19556"
-                or yearchoosen.get() == "19560" or yearchoosen.get() == "1964"
+            if (yearchoosen.get() == "1952" or yearchoosen.get() == "1956"
+                or yearchoosen.get() == "1960" or yearchoosen.get() == "1964"
                 or yearchoosen.get() == "1968" or yearchoosen.get() == "1972"
                 or yearchoosen.get() == "1976" or yearchoosen.get() == "1980" 
                 or yearchoosen.get() == "1984" or yearchoosen.get() == "1988"
@@ -92,81 +135,103 @@ def mainframe(EmployeeID, permission, parentForm):
         
         
     def Quit():
+        parentForm.deiconify()
         root.destroy()
         
     def Reload():
         root.destroy()
-        mainframe()
+        mainframe(EmployeeID,permission,parentForm)
     
     def EditO():
         Ngay = daychoosen.get()+"/"+monthchoosen.get()+"/"+yearchoosen.get()
-        cus = ctm.Customer(Name_field.get(),Ngay,Address_field.get(),Phone_field.get(),get_Sex(),Signature_field.get())
-        if (ID_field.get() == ""):
-            messagebox.showerror("Error","Bạn chưa chọn thông tin người sửa!")
-        else:
-            if (Name_field.get() == ""):
-                messagebox.showerror("Error","Không được để trống tên!")
-            elif (Address_field.get() == ""):
-                messagebox.showerror("Error","Không được để trống địa chỉ!")
-            elif (Phone_field.get() == ""):
-                messagebox.showerror("Error","Không được để trống số điện thoại!")
-            elif (Signature_field.get() == ""):
-                messagebox.showerror("Error","Chưa chọn địa chỉ ảnh")
+        if permission == 'admin':
+            cus = ctm.Customer(Name_field.get(),Ngay,Address_field.get(),Phone_field.get(),Sexchoosen.get(),employeechoosen.get())
+            if (ID_field.get() == ""):
+                messagebox.showerror("Error","Bạn chưa chọn thông tin người sửa!")
             else:
-                if (check_Date() == False):
-                    messagebox.showerror("Error","Lỗi ngày tháng năm sinh!")
-                elif (check_Phone() == False):
-                    messagebox.showerror("Error","Lỗi số điện thoại!")
+                if (Name_field.get() == ""):
+                    messagebox.showerror("Error","Không được để trống tên!")
+                elif (Address_field.get() == ""):
+                    messagebox.showerror("Error","Không được để trống địa chỉ!")
+                elif (Phone_field.get() == ""):
+                    messagebox.showerror("Error","Không được để trống số điện thoại!")
+                elif (daychoosen.get() == "" or monthchoosen.get() == "" or yearchoosen.get() == ""):
+                    messagebox.showerror("Error","Chưa chọn ngày tháng năm sinh!")
+                elif (employeechoosen.get() == ""):
+                    messagebox.showerror("Error","Chưa chọn tài khoản nhân viên quản lý!")
                 else:
-                    a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn sửa thông tin khách hàng"+ID_field.get()+" không?")
-                    if (a == 'yes'):
-                        cus.EditCustomer(ID_field.get())
-                        messagebox.showinfo("","Sửa thành công!")
-                        Reload()
+                    if (check_Date() == False):
+                        messagebox.showerror("Error","Lỗi ngày tháng năm sinh!")
+                    elif (check_Phone() == False):
+                        messagebox.showerror("Error","Lỗi số điện thoại!")
+                    else:
+                        a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn sửa thông tin khách hàng"+ID_field.get()+" không?")
+                        if (a == 'yes'):
+                            cus.EditCustomer(ID_field.get())
+                            Reload()
+        else:
+            cus = ctm.Customer(Name_field.get(),Ngay,Address_field.get(),Phone_field.get(),Sexchoosen.get(),EmployeeID)
+            if (ID_field.get() == ""):
+                messagebox.showerror("Error","Bạn chưa chọn thông tin người sửa!")
+            else:
+                if (Name_field.get() == ""):
+                    messagebox.showerror("Error","Không được để trống tên!")
+                elif (Address_field.get() == ""):
+                    messagebox.showerror("Error","Không được để trống địa chỉ!")
+                elif (Phone_field.get() == ""):
+                    messagebox.showerror("Error","Không được để trống số điện thoại!")
+                elif (daychoosen.get() == "" or monthchoosen.get() == "" or yearchoosen.get() == ""):
+                    messagebox.showerror("Error","Chưa chọn ngày tháng năm sinh!")
+                else:
+                    if (check_Date() == False):
+                        messagebox.showerror("Error","Lỗi ngày tháng năm sinh!")
+                    elif (check_Phone() == False):
+                        messagebox.showerror("Error","Lỗi số điện thoại!")
+                    else:
+                        a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn sửa thông tin khách hàng"+ID_field.get()+" không?")
+                        if (a == 'yes'):
+                            cus.EditCustomer(ID_field.get())
+                            Reload()
             
     
     def DeleteO():
         Ngay = daychoosen.get()+"/"+monthchoosen.get()+"/"+yearchoosen.get()
-        cus = ctm.Customer(Name_field.get(),Ngay, Address_field.get(), Phone_field.get(), get_Sex(), Signature_field.get())
+        cus = ctm.Customer(Name_field.get(),Ngay, Address_field.get(), Phone_field.get(),Sexchoosen.get(),"Delete")
         if (ID_field.get() == ""):
             messagebox.showerror("Error","Bạn chưa chọn thông tin người muốn xoá!")
         else:
             a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn xoá khách hàng "+ID_field.get()+" không?")
             if (a == 'yes'):
                 cus.DeleteCustomer(ID_field.get())
-                messagebox.showinfo("","Xoá thành công!")
                 Reload()
 
-    def CheckAcc(root):
+    def CheckAcc():
         if (ID_field.get()==""):
             messagebox.showerror("Error","Bạn chưa chọn khách hàng bạn muốn xem thông tin tài khoản!")
         else:
             ID = ID_field.get()
-            formAcc.mainframeAcc(ID, root)
+            if (permission=="admin"):
+                formAcc.mainframeAcc(ID,permission, root)
+            else:
+                formAcc.mainframeAcc(ID,permission, root)
     
     def Clear():
         ID_field.config(state="normal")
         ID_field.delete(0,END)
+        ID_field.config(state="readonly")
         Name_field.delete(0,END)
-        daychoosen.current(0)
-        monthchoosen.current(0)
-        yearchoosen.current(0)
+        daychoosen.set("")
+        monthchoosen.set("")
+        yearchoosen.set("")
         Address_field.delete(0,END)
         Phone_field.delete(0,END)
-        var.set(0)
+        Sexchoosen.set("")
+        Signature_field.config(state="normal")
         Signature_field.delete(0,END)
-    
-    def browsefunc(ent):
-        filename = askopenfilename(filetypes=([
-            ("image",".jpeg"),
-            ("image","png"),
-            ("image",".jpg"),
-            ]))
-        setTextEnt(ent, filename)
+        Signature_field.config(state="readonly")
+        if permission == 'admin':
+            employeechoosen.set("")
         
-    def setTextEnt(ent, txt):
-        ent.delete(0, 'end')
-        ent.insert(0, txt)
     
     def displaySelectedItem(a):
         ID_field.config(state="normal")
@@ -174,11 +239,8 @@ def mainframe(EmployeeID, permission, parentForm):
         Name_field.delete(0,END)
         Address_field.delete(0,END)
         Phone_field.delete(0,END)
-        var.set(0)
+        Signature_field.config(state="normal")
         Signature_field.delete(0,END)
-        daychoosen.delete(0,END)
-        monthchoosen.delete(0,END)
-        yearchoosen.delete(0,END)
         
         current_item = table.focus()
         ID = table.item(current_item)['values'][0]
@@ -188,6 +250,7 @@ def mainframe(EmployeeID, permission, parentForm):
         Phone = table.item(current_item)['values'][4]
         Sex = table.item(current_item)['values'][5]
         Signature = table.item(current_item)['values'][6]
+        EmployeeAccountID = table.item(current_item)['values'][7]
         
         if (len(str(Phone)) == 9):
             Phone = '0' + str(Phone)
@@ -202,18 +265,20 @@ def mainframe(EmployeeID, permission, parentForm):
         yearchoosen.set(listday[2])
         Address_field.insert(0, Address)
         Phone_field.insert(0, Phone)
-        if (Sex == "Nam"):
-            var.set(1)
-        else : var.set(2)
+        Sexchoosen.set(Sex)
         Signature_field.insert(0, Signature)
+        Signature_field.config(state="readonly")
+        if permission == 'admin':
+            employeechoosen.set(EmployeeAccountID)
+        
+    def on_closing():
+        parentForm.deiconify()
+        root.destroy()
         
         
     root = Tk()
     root.minsize(height = 500,width = 800)
     
-    def on_closing():
-        parentForm.deiconify()
-        root.destroy()
 
     root.protocol("WM_DELETE_WINDOW", on_closing)
     
@@ -232,10 +297,10 @@ def mainframe(EmployeeID, permission, parentForm):
     Button(root,text="ADD",command=AddO).place(relwidth = .3, relheight = .06, relx =.1, rely =.68)
     Button(root,text="EDIT",command=EditO).place(relwidth = .3, relheight = .06, relx =.1, rely =.79)
     Button(root,text="DELETE",command=DeleteO).place(relwidth = .3,relheight = .06,relx = .1,rely = .9)
-    Button(root,text="CHECK ACCOUNT",command=lambda: CheckAcc(root)).place(relwidth = .3, relheight = .06, relx= .55, rely=.68)
+    Button(root,text="CHECK ACCOUNT",command=CheckAcc).place(relwidth = .3, relheight = .06, relx= .55, rely=.68)
     Button(root, text="CLEAR",command=Clear).place(relwidth = .3, relheight = .06, relx = .55, rely = .79)
     
-    table = ttk.Treeview(root, columns = ('ID','Name','Birth','Address','Phone','Sex','Signature'), show = 'headings')
+    table = ttk.Treeview(root, columns = ('ID','Name','Birth','Address','Phone','Sex','Signature','EmployeeAccountID'), show = 'headings')
     table.heading('ID', text='ID')
     table.heading('Name', text='Name')
     table.heading('Birth', text='Birth')
@@ -243,14 +308,16 @@ def mainframe(EmployeeID, permission, parentForm):
     table.heading('Phone', text='Phone')
     table.heading('Sex', text='Sex')
     table.heading('Signature', text = 'Signature')
+    table.heading('EmployeeAccountID', text = 'Employee Account ID')
     
     table.column('ID',width =45,stretch=NO)
     table.column('Name',minwidth = 50,width=150)
     table.column('Birth',width=75,stretch=NO)
-    table.column('Address',minwidth=10,width=180)
+    table.column('Address',minwidth=10,width=100,stretch=NO)
     table.column('Phone',width=75,stretch=NO)
     table.column('Sex',width=40,stretch=NO)
-    table.column('Signature',width=100)
+    table.column('Signature',width=100,stretch=NO)
+    table.column('EmployeeAccountID',width=100)
     
     scrolly = Scrollbar(table)
     scrolly.pack(side = RIGHT,fill=Y)
@@ -269,37 +336,31 @@ def mainframe(EmployeeID, permission, parentForm):
         
     Label(root, text="Address: ").place(relwidth = .12, relheight = .04, relx =.01, rely =.63)
 
-    Label(root, text="Phone: ").place(relwidth = .12, relheight = .04, relx =.4, rely =.48)
+    Label(root, text="Phone: ").place(relwidth = .16, relheight = .04, relx =.5, rely =.48)
         
-    Label(root, text="Sex: ").place(relwidth = .12, relheight = .04, relx =.4, rely =.53)
+    Label(root, text="Sex: ").place(relwidth = .16, relheight = .04, relx =.5, rely =.53)
         
-    Label(root, text="Signature: ").place(relwidth = .12, relheight = .04, relx =.4, rely =.58)
-        
+    Label(root, text="Signature: ").place(relwidth = .16, relheight = .04, relx =.5, rely =.58)
+    if permission =="admin": 
+        Label(root, text="Employee Account ID: ").place(relwidth = .16, relheight = .04, relx =.5, rely =.63)
+    
     #Entry
     
-    ID_field = Entry(root, font="Times 12")
+    ID_field = Entry(root, font="Times 12",state='readonly')
     ID_field.place(relwidth = .25, relheight = .04, relx =.13, rely =.48)
     
     Name_field = Entry(root,font="Times 12")
     Name_field.place(relwidth = .25, relheight = .04, relx =.13, rely =.53)
-    
-    #Date_field = Entry(root,font="Times 12")
-    #Date_field.place(relwidth = .25, relheight = .04, relx =.13, rely =.58)
         
     Address_field = Entry(root,font="Times 12")
-    Address_field.place(relwidth = .5, relheight = .04, relx =.13, rely =.63)
+    Address_field.place(relwidth = .35, relheight = .04, relx =.13, rely =.63)
         
     Phone_field = Entry(root,font="Times 12")
-    Phone_field.place(relwidth = .4, relheight = .04, relx =.52, rely =.48)
+    Phone_field.place(relwidth = .3, relheight = .04, relx =.67, rely =.48)
         
-    Signature_field = Entry(root,font="Times 12")
-    Signature_field.place(relwidth = .36, relheight = .04, relx =.52, rely =.58)
-    Button(root,text="...",command=lambda : browsefunc(ent=Signature_field)).place(relwidth = .03, relheight = .04, relx =.89, rely =.58)
+    Signature_field = Entry(root,font="Times 12",state="readonly")
+    Signature_field.place(relwidth = .3, relheight = .04, relx =.67, rely =.58)
         
-    var = IntVar()
-    R1 = Radiobutton(root, text="Nam",variable=var,value=1).place(relwidth = .1, relheight = .04, relx =.55, rely =.53)
-    R2 = Radiobutton(root, text="Nữ",variable=var,value=2).place(relwidth = .1, relheight = .04, relx =.7, rely =.53)
-    
     nday = StringVar()
     daychoosen = ttk.Combobox(root,textvariable = nday,state="readonly")
     daychoosen['values'] = ("01","02","03","04","05","06","07","08","09",10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31)
@@ -317,5 +378,28 @@ def mainframe(EmployeeID, permission, parentForm):
         year.append(i)
     yearchoosen['values'] = (year)
     yearchoosen.place(relwidth = .1, relheight =.04, relx = .27, rely = .58)
+    
+    nSex = StringVar()
+    Sexchoosen = ttk.Combobox(root,textvariable = nSex, state='readonly')
+    Sexchoosen['values'] = ("Nam","Nữ")
+    Sexchoosen.place(relwidth = .12, relheight = .04, relx =.67, rely =.53)  
+    
+    if permission == 'admin':
+        nEmployeeID = StringVar()
+        employeechoosen = ttk.Combobox(root,textvariable= nEmployeeID,state='readonly')
+        conn = sql.connect("Bank.db")
+        c = conn.cursor()
+        sql_ID = """
+        SELECT EmployeeAccountID FROM EmployeeAccount
+        """
+        c.execute(sql_ID)
+        rows = c.fetchall()
+        data = []
+        for row in rows:
+            for i in row:
+                data.append(i)
+        employeechoosen['values'] = (data)
+        employeechoosen.place(relwidth = .25, relheight = .04, relx =.67, rely =.63)
+        conn.close()
     
     root.mainloop()

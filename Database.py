@@ -15,7 +15,9 @@ c.execute("""
                 Address text,
                 Phone text,
                 Sex text,
-                SignatureFolder text
+                SignatureFolder text,
+                EmployeeManageID text NOT NULL,
+            	FOREIGN KEY (EmployeeManageID) REFERENCES EmployeeAccount(EmployeeAccountID)
             )
           """)
           
@@ -52,9 +54,7 @@ c.execute("""
                 AccountOpenDate text,
             	AccountType text,
                 CustomerID text NOT NULL,
-            	EmployeeManageID text NOT NULL,
-            	FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
-            	FOREIGN KEY (EmployeeManageID) REFERENCES EmployeeAccount(EmployeeAccountID)
+            	FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
             )
           """)
          
@@ -77,11 +77,11 @@ c.execute("""
 c.execute("""
               INSERT INTO Customer
                 VALUES
-                ('KH01', 'Nguyễn Thị Ánh', '01/03/1975', '123 Nguyễn Văn Cừ, Quận 1, TP.HCM', '0901234567', 'Nữ', 'SignatureImg/KH01'),
-                ('KH02', 'Lê Văn Đức', '20/05/1998', '456 Trần Hưng Đạo, Quận 5, TP.HCM', '0909876543', 'Nam', 'SignatureImg/KH02'),
-                ('KH03', 'Phạm Thị Mai', '17/03/2000', '789 Nguyễn Thị Minh Khai, Quận 3, TP.HCM', '0902223333', 'Nữ', 'SignatureImg/KH03'),
-                ('KH04', 'Nguyễn Văn Hưng', '29/12/1980', '555 Lê Lợi, Quận 1, TP.HCM', '0904445555', 'Nam', 'SignatureImg/KH04'),
-                ('KH05', 'Trần Thị Thanh', '01/12/1975', '888 Phạm Ngọc Thạch, Quận 3, TP.HCM', '0906667777', 'Nữ', 'SignatureImg/KH05');
+                ('KH01', 'Nguyễn Thị Ánh', '01/03/1975', '123 Nguyễn Văn Cừ, Quận 1, TP.HCM', '0901234567', 'Nữ', 'SignatureImg/KH01', 'TK01'),
+                ('KH02', 'Lê Văn Đức', '20/05/1998', '456 Trần Hưng Đạo, Quận 5, TP.HCM', '0909876543', 'Nam', 'SignatureImg/KH02', 'TK01'),
+                ('KH03', 'Phạm Thị Mai', '17/03/2000', '789 Nguyễn Thị Minh Khai, Quận 3, TP.HCM', '0902223333', 'Nữ', 'SignatureImg/KH03', 'TK03'),
+                ('KH04', 'Nguyễn Văn Hưng', '29/12/1980', '555 Lê Lợi, Quận 1, TP.HCM', '0904445555', 'Nam', 'SignatureImg/KH04', 'TK02'),
+                ('KH05', 'Trần Thị Thanh', '01/12/1975', '888 Phạm Ngọc Thạch, Quận 3, TP.HCM', '0906667777', 'Nữ', 'SignatureImg/KH05', 'TK02');
           """)
           
 # INSERT INTO Employee
@@ -99,22 +99,22 @@ c.execute("""
 c.execute("""
           INSERT INTO EmployeeAccount
             VALUES 
-            ('TK01', 'Employee', '123456', 'normal', 'NV01'),
-            ('TK02', 'Employee', '123456', 'normal', 'NV02'),
-            ('TK03', 'Employee', '123456', 'normal', 'NV03'),
-            ('TK04', 'Employee', '123456', 'normal', 'NV04'),
-            ('TK05', 'Employee', '123456', 'normal', 'NV05');
+            ('TK01', 'root', '123456', 'admin', 'NV01'),
+            ('TK02', 'Employee2', '123456', 'normal', 'NV02'),
+            ('TK03', 'Employee3', '123456', 'normal', 'NV03'),
+            ('TK04', 'Employee4', '123456', 'normal', 'NV04'),
+            ('TK05', 'Employee5', '123456', 'normal', 'NV05');
           """)
           
 # INSERT INTO CustomerAccount
 c.execute("""
           INSERT INTO CustomerAccount
             VALUES
-            ('TKKH01', 2000000, '28/12/2020', 'normal', 'KH01', 'TK01'),
-            ('TKKH02', 6000000, '03/05/2021', 'normal', 'KH02', 'TK01'),
-            ('TKKH03', 10000000, '30/05/2021', 'normal', 'KH03', 'TK03'),
-            ('TKKH04', 5000000, '02/10/2021', 'normal', 'KH04', 'TK02'),
-            ('TKKH05', 3000000, '08/07/2018', 'normal', 'KH05', 'TK02');
+            ('TKKH01', 2000000, '28/12/2020', 'normal', 'KH01'),
+            ('TKKH02', 6000000, '03/05/2021', 'normal', 'KH02'),
+            ('TKKH03', 10000000, '30/05/2021', 'normal', 'KH03'),
+            ('TKKH04', 5000000, '02/10/2021', 'normal', 'KH04'),
+            ('TKKH05', 3000000, '08/07/2018', 'normal', 'KH05');
           """)
 
 # INSERT INTO Exchange

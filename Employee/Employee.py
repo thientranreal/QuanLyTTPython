@@ -15,12 +15,12 @@ def Employee(parentForm):
 
     #Read our config file and grt colors
     parser = ConfigParser()
-    path = os.path.dirname(__file__) + "\\treebase.ini"
+    path = "Employee/treebase.ini"
     parser.read(path)
     # parser.read("treebase.ini")
     saved_primary_color = parser.get('colors', 'primary_color')
     saved_secondary_color = parser.get('colors', 'secondary_color')
-    saved_highlight_color = parser.get('colors', 'highlight_color')
+    # saved_highlight_color = parser.get('colors', 'highlight_color')
 
     def on_closing():
         parentForm.deiconify()
@@ -68,9 +68,11 @@ def Employee(parentForm):
         #Close the search box
         search.destroy()
 
-        #Clear the Treeview
+        #Clear the Treeview and entry boxes
         for record in tree.get_children():
             tree.delete(record)
+        
+        clear_entries()
 
         #Create a database or connect to on that exists
         path = "Bank.db"
@@ -125,7 +127,7 @@ def Employee(parentForm):
             tree.tag_configure("evenrow", background=primary_color)
 
             parser = ConfigParser()
-            path = os.path.dirname(__file__) + "\\treebase.ini"
+            path = "Employee/treebase.ini"
             parser.read(path)
 
             #Set the color change
@@ -141,7 +143,7 @@ def Employee(parentForm):
             tree.tag_configure("oddrow", background=secondary_color)
 
             parser = ConfigParser()
-            path = os.path.dirname(__file__) + "\\treebase.ini"
+            path = "Employee/treebase.ini"
             parser.read(path)
 
             #Set the color change
@@ -152,30 +154,30 @@ def Employee(parentForm):
 
 
 
-    def highlight_color():
-        highlight_color = colorchooser.askcolor()[1]
-        if highlight_color:
-            style.map('Treeview', background=[('selected', highlight_color)])
+    # def highlight_color():
+    #     highlight_color = colorchooser.askcolor()[1]
+    #     if highlight_color:
+    #         style.map('Treeview', background=[('selected', highlight_color)])
 
-            parser = ConfigParser()
-            path = os.path.dirname(__file__) + "\\treebase.ini"
-            parser.read(path)
+    #         parser = ConfigParser()
+    #         path = "Employee/treebase.ini"
+    #         parser.read(path)
 
-            #Set the color change
-            parser.set('colors', 'highlight_color', highlight_color)
-            #Save the config file 
-            with open(path, 'w') as configfile:
-                parser.write(configfile)
+    #         #Set the color change
+    #         parser.set('colors', 'highlight_color', highlight_color)
+    #         #Save the config file 
+    #         with open(path, 'w') as configfile:
+    #             parser.write(configfile)
 
 
     def reset_colors():
         #Save original colors to config file
         parser = ConfigParser()
-        path = os.path.dirname(__file__) + "\\treebase.ini"
+        path = "Employee/treebase.ini"
         parser.read(path)
         parser.set('colors', 'primary_color', 'lightblue')
         parser.set('colors', 'secondary_color', 'white')
-        parser.set('colors', 'highlight_color', '#347083')
+        # parser.set('colors', 'highlight_color', '#347083')
         with open(path, 'w') as configfile:
             parser.write(configfile)
 
@@ -197,10 +199,10 @@ def Employee(parentForm):
     #Drop down menu 
     option_menu.add_command(label="Primary color", command=primary_color)
     option_menu.add_command(label="Secondary color", command=secondary_color)
-    option_menu.add_command(label="Highlight color", command=highlight_color)
+    # option_menu.add_command(label="Highlight color", command=highlight_color)
     option_menu.add_separator()
     option_menu.add_command(label="Reset colors", command=reset_colors)
-    option_menu.add_command(label="Exit", command=root.quit)
+    # option_menu.add_command(label="Exit", command=root.quit)
 
 
     #Search our menu
@@ -213,32 +215,6 @@ def Employee(parentForm):
     search_menu.add_command(label="Reset", command=query_database)
 
 
-
-
-    # data = [
-    #     [1, "John", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [2, "Mary", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [3, "Tim", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [4, "Bob", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [5, "Thomas", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [6, "James", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [2, "Mary", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [3, "Tim", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [4, "Bob", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [5, "Thomas", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [6, "James", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [2, "Mary", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [3, "Tim", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [4, "Bob", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [5, "Thomas", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [6, "James", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [2, "Mary", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [3, "Tim", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [4, "Bob", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [5, "Thomas", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [6, "James", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    #     [7, "Tom", "123 Ly Tu Trong", "0123456789", "11/11/2003", "Nam", "john@gmail.com"],
-    # ]
 
     #Create a database or connect to on that exists
     path = "Bank.db"
@@ -260,20 +236,6 @@ def Employee(parentForm):
             ''')
 
 
-    #Add dummy data to table
-    # for record in data:
-    #     c.execute("INSERT into Employee VALUES (:EmployeeID, :EmployeeName, :Address, :Phone, :DateOfBirth, :Sex, :Email)", 
-    #              {
-    #                 'EmployeeID': record[0],
-    #                 'EmployeeName': record[1],
-    #                 'Address': record[2],
-    #                 'Phone': record[3],
-    #                 'DateOfBirth': record[4],
-    #                 'Sex': record[5],
-    #                 'Email': record[6]
-    #              }              
-    #                 )
-    #
 
     #Commit changes
     conn.commit()
@@ -296,9 +258,9 @@ def Employee(parentForm):
         )
 
     #Change selected color #347083
-    style.map("Treeview", 
-        background=[('selected', saved_highlight_color)]
-        )
+    # style.map("Treeview", 
+    #     background=[('selected', saved_highlight_color)]
+    #     )
 
 
     #Create Treeview Frame
@@ -393,9 +355,6 @@ def Employee(parentForm):
 
     #Add record
     def add_record():
-        # tree.tag_configure("oddrow", background="white")
-        # tree.tag_configure("evenrow", background="lightblue")
-
 
         #Create a database or connect to on that exists
         path = "Bank.db"
@@ -415,41 +374,31 @@ def Employee(parentForm):
 
         # Get the count value from the query result
         counter = c.fetchone()[0]
+       
 
         # Check if the count is greater than zero
         if counter > 0:
             messagebox.showerror("ERROR", "EmployeeID was exist in table Employee.")
         else:
-            #Add new record
-            c.execute("INSERT into Employee VALUES (:ID, :Name, :Address, :Phone, :Date, :Sex, :Email)",    
-                {
-                    'ID': id_entry.get(),  
-                    'Name': n_entry.get(),
-                    'Address': ad_entry.get(),
-                    'Phone': p_entry.get(),
-                    'Date': d_entry.get(),
-                    'Sex': s_entry.get(),
-                    'Email': e_entry.get(),
-                }           
-                        )
-            messagebox.showinfo('Congratulation', 'Add Successfull !')
-            
-            
+            if (id_entry.get() == "" and  n_entry.get() == "" and ad_entry.get() == "" and p_entry.get() == "" and d_entry.get() == "" and s_entry.get() == "" and e_entry.get() == "") or id_entry.get() == "":
+                messagebox.showerror("ERROR", "Cannot add the null EmployeeID or null Data")
+            else: 
+                #Add new record
+                c.execute("INSERT into Employee VALUES (:ID, :Name, :Address, :Phone, :Date, :Sex, :Email)",    
+                    {
+                        'ID': id_entry.get(),  
+                        'Name': n_entry.get(),
+                        'Address': ad_entry.get(),
+                        'Phone': p_entry.get(),
+                        'Date': d_entry.get(),
+                        'Sex': s_entry.get(),
+                        'Email': e_entry.get(),
+                    }           
+                            )
+                messagebox.showinfo('Congratulation', 'Add Successfull !')
 
-
-        # #Add new record
-        # c.execute("INSERT into Employee VALUES (:ID, :Name, :Address, :Phone, :Date, :Sex, :Email)",    
-        #         {
-        #             'ID': id_entry.get(),  
-        #             'Name': n_entry.get(),
-        #             'Address': ad_entry.get(),
-        #             'Phone': p_entry.get(),
-        #             'Date': d_entry.get(),
-        #             'Sex': s_entry.get(),
-        #             'Email': e_entry.get(),
-        #         }           
-        #                 )
-        #
+                #Clear the boxes
+                clear_entries()
 
 
         #Commit changes
@@ -466,53 +415,44 @@ def Employee(parentForm):
 
         count += 1
 
-        #Clear the boxes
-        id_entry.delete(0, END)
-        n_entry.delete(0, END)
-        ad_entry.delete(0, END)
-        p_entry.delete(0, END)
-        d_entry.delete(0, END)
-        s_entry.delete(0, END)
-        e_entry.delete(0, END)
-
 
         #Clear the treeview table
         tree.delete(*tree.get_children())
         query_database()
 
 
-    #Remove all records
-    def remove_all():
-        #Add a little message box 
-        respone = messagebox.askyesno("Delete all ?", "This will delete everything from the table! \n Are you sure ?")
+    # #Remove all records
+    # def remove_all():
+    #     #Add a little message box 
+    #     respone = messagebox.askyesno("Delete all ?", "This will delete everything from the table! \n Are you sure ?")
 
-        #Add logic for message box
-        if respone == 1:
-            for record in tree.get_children():
-                tree.delete(record)
+    #     #Add logic for message box
+    #     if respone == 1:
+    #         for record in tree.get_children():
+    #             tree.delete(record)
 
-            #Create a database or connect to on that exists
-            path = "Bank.db"
-            conn = sql.connect(path)
+    #         #Create a database or connect to on that exists
+    #         path = "Bank.db"
+    #         conn = sql.connect(path)
 
-            #Create a cursor instance
-            c = conn.cursor()
+    #         #Create a cursor instance
+    #         c = conn.cursor()
 
-            #Delete everything from database
-            c.execute("DROP TABLE Employee")
+    #         #Delete everything from database
+    #         c.execute("DROP TABLE Employee")
         
 
-            #Commit changes
-            conn.commit()
+    #         #Commit changes
+    #         conn.commit()
 
-            #Close our connection
-            conn.close()
+    #         #Close our connection
+    #         conn.close()
 
-            #Clear the boxes
-            clear_entries()
+    #         #Clear the boxes
+    #         clear_entries()
 
-            #Recreate the table
-            create_table_again()
+    #         #Recreate the table
+    #         create_table_again()
 
 
 
@@ -577,12 +517,30 @@ def Employee(parentForm):
             #Create a cursor instance
             c = conn.cursor()
 
-            #Delete everything selected from database
-            c.executemany("DELETE FROM Employee WHERE EmployeeID = ?", [(a,) for a in ids_to_delete])
+            #Check foreign keys
+            conn.execute("PRAGMA foreign_keys = ON")
+
         
+            # Check if the delete was successful
+            # if c.rowcount == -1:
+            #     print("No rows were deleted.")
+            #     query_database()
+            # else:
+            #     print(f"{c.rowcount} rows were deleted.")
+                
+
+            try:
+                c.executemany("DELETE FROM Employee WHERE EmployeeID = ?", [(a,) for a in ids_to_delete])
+                messagebox.showinfo("Congratulation", "Remove Selected Successfull!")
+                conn.commit()
+            except sql.IntegrityError:
+                query_database()
+                messagebox.showerror("ERROR", "Record cannot be deleted due to foreign key constraint")
+
+
 
             #Commit changes
-            conn.commit()
+            # conn.commit()
 
             #Close our connection
             conn.close()
@@ -593,6 +551,8 @@ def Employee(parentForm):
 
     #Clear entry boxes
     def clear_entries():
+        id_entry.config(state="normal")
+
         id_entry.delete(0, END)
         n_entry.delete(0, END)
         ad_entry.delete(0, END)
@@ -603,6 +563,10 @@ def Employee(parentForm):
 
     #Select record
     def select_record():
+        global eid 
+
+        #Open the entry box to change data
+        id_entry.config(state="normal")
 
         #Clear entry boxes
         id_entry.delete(0, END)
@@ -628,6 +592,11 @@ def Employee(parentForm):
         d_entry.insert(0, values[4])
         s_entry.insert(0, values[5])
         e_entry.insert(0, values[6])
+
+        eid = id_entry.get()
+
+        #Block entry box
+        id_entry.config(state="disabled")
 
 
     #Update record
@@ -656,8 +625,11 @@ def Employee(parentForm):
         # Get the counter value from the query result
         counter = c.fetchone()[0]
 
+        if employee_id == eid :
+            counter = counter + 1
+
         # Check if the counter is greater than zero
-        if counter > 0:
+        if counter == 1:
             query_database()
             messagebox.showerror("ERROR", "EmployeeID was exist in table Employee.")
         else:
@@ -683,23 +655,15 @@ def Employee(parentForm):
                         )
             messagebox.showinfo('Congratulation', 'Update Successfull !')
 
+            #Clear entry boxes
+            clear_entries()
+
 
         #Commit changes
         conn.commit()
 
         #Close our connection
         conn.close()
-
-        #Clear entry boxes
-        id_entry.delete(0, END)
-        n_entry.delete(0, END)
-        ad_entry.delete(0, END)
-        p_entry.delete(0, END)
-        d_entry.delete(0, END)
-        s_entry.delete(0, END)
-        e_entry.delete(0, END)
-
-        
 
 
     #Create binding click function
@@ -721,31 +685,31 @@ def Employee(parentForm):
     #         tree.move(row, tree.parent(row), tree.index(row)+1) 
 
 
-    def create_table_again():
-        #Create a database or connect to on that exists
-        path = "Bank.db"
-        conn = sql.connect(path)
+    # def create_table_again():
+    #     #Create a database or connect to on that exists
+    #     path = "Bank.db"
+    #     conn = sql.connect(path)
 
-        #Create a cursor instance
-        c = conn.cursor()
+    #     #Create a cursor instance
+    #     c = conn.cursor()
 
-        #Create tabel
-        c.execute('''CREATE TABLE if not exists Employee(
-            EmployeeID text,
-            EmployeeName text,
-            Address text,
-            Phone text,
-            DateOfBirth text,
-            Sex text,
-            Email text
-            )
-            ''')
+    #     #Create tabel
+    #     c.execute('''CREATE TABLE if not exists Employee(
+    #         EmployeeID text,
+    #         EmployeeName text,
+    #         Address text,
+    #         Phone text,
+    #         DateOfBirth text,
+    #         Sex text,
+    #         Email text
+    #         )
+    #         ''')
 
-        #Commit changes
-        conn.commit()
+    #     #Commit changes
+    #     conn.commit()
 
-        #Close our connection
-        conn.close()
+    #     #Close our connection
+    #     conn.close()
 
 
     #Add buttons
@@ -758,20 +722,14 @@ def Employee(parentForm):
     add_button = Button(button_frame, text="Add record", command=add_record)
     add_button.grid(row=0, column=1, padx=20, pady=20)
 
-    remove_all_button = Button(button_frame, text="Remove all record", command=remove_all)
-    remove_all_button.grid(row=0, column=2, padx=20, pady=20)
+    # remove_all_button = Button(button_frame, text="Remove all record", command=remove_all)
+    # remove_all_button.grid(row=0, column=2, padx=20, pady=20)
 
     # remove_one_button = Button(button_frame, text="Remove one selected", command=remove_one)
     # remove_one_button.grid(row=0, column=3, padx=20, pady=20)
 
-    remove_many_button = Button(button_frame, text="Remove many selected", command=remove_many)
+    remove_many_button = Button(button_frame, text="Remove selected", command=remove_many)
     remove_many_button.grid(row=0, column=4, padx=20, pady=20)
-
-    # move_up_button = Button(button_frame, text="Move up", command=up)
-    # move_up_button.grid(row=0, column=5, padx=20, pady=20)
-
-    # move_down_button = Button(button_frame, text="Move down", command=down)
-    # move_down_button.grid(row=0, column=6, padx=20, pady=20)
 
     selected_record_button = Button(button_frame, text="Clear entry boxes", command=clear_entries)
     selected_record_button.grid(row=0, column=7, padx=20, pady=20)
