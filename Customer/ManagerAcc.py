@@ -14,22 +14,25 @@ def mainframeAcc(ID,permission, parentForm):
         return today.strftime("%d/%m/%Y")
     
     def AddO():
-        cusAcc = ctmAcc.CustomerAccount(Balance_field.get(),get_currentDay(),Type_field.get(),ID)
-        if (Balance_field.get() ==""):
-            messagebox.showerror("Error","Chưa nhập số tiền!")
-        elif (Balance_field.get().isdigit() == False):
-            messagebox.showerror("Error","Lỗi nhập số tiền!")
-        elif (Type_field.get() == ""):
-            messagebox.showerror("Error","Chưa nhập loại tài khoản!")
+        if (ID_field.get() != ""):
+            messagebox.showerror("Error","Phải để trống ID khi thêm! Vui lòng nhấn CLEAR.")
         else:
-            a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn thêm tài khoản không?")
-            if (a == 'yes'):
-                cusAcc.AddAccountCustomer()
-                Reload()
+            cusAcc = ctmAcc.CustomerAccount(Balance_field.get(),get_currentDay(),Typechoosen.get(),ID)
+            if (Balance_field.get() ==""):
+                messagebox.showerror("Error","Chưa nhập số tiền!")
+            elif (Balance_field.get().isdigit() == False):
+                messagebox.showerror("Error","Lỗi nhập số tiền!")
+            elif (Typechoosen.get() == ""):
+                messagebox.showerror("Error","Chưa chọn loại tài khoản!")
+            else:
+                a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn thêm tài khoản không?")
+                if (a == 'yes'):
+                    cusAcc.AddAccountCustomer()
+                    Reload()
             
     
     def EditO():
-        cusAcc = ctmAcc.CustomerAccount(Balance_field.get(),Date_field.get(), Type_field.get(),ID)
+        cusAcc = ctmAcc.CustomerAccount(Balance_field.get(),Date_field.get(), Typechoosen.get(),ID)
         a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn sửa thông tin tài khoản "+ID_field.get()+" không?")
         if (ID_field.get() == ""):
             messagebox.showerror("Error","Bạn chưa chọn tài khoản muốn sửa thông tin!")
@@ -38,15 +41,15 @@ def mainframeAcc(ID,permission, parentForm):
                 messagebox.showerror("Error","Chưa nhập số tiền!")
             elif (Balance_field.get().isdigit() == False):
                 messagebox.showerror("Error","Lỗi nhập số tiền!")
-            elif (Type_field.get() == ""):
-                messagebox.showerror("Error","Chưa nhập loại tài khoảng!")
+            elif (Typechoosen.get() == ""):
+                messagebox.showerror("Error","Chưa chọn loại tài khoản!")
             else:
                 if (a == 'yes'):
                     cusAcc.EditAccountCustomer(ID_field.get())
                     Reload()
     
     def DeleteO():
-        cusAcc = ctmAcc.CustomerAccount(Balance_field.get(),Date_field.get(), Type_field.get(),ID)
+        cusAcc = ctmAcc.CustomerAccount(Balance_field.get(),Date_field.get(), Typechoosen.get(),ID)
         if (ID_field.get() == ""):
             messagebox.showerror("Error","Bạn chưa chọn tài khoản muốn xoá!")
         else:
@@ -63,7 +66,7 @@ def mainframeAcc(ID,permission, parentForm):
          Date_field.config(state="normal")
          Date_field.delete(0,END)
          Date_field.config(state="readonly")
-         Type_field.delete(0,END)
+         Typechoosen.set("")
     
     def Quit():
         root.destroy()
@@ -80,7 +83,7 @@ def mainframeAcc(ID,permission, parentForm):
          Balance_field.delete(0,END)
          Date_field.config(state="normal")
          Date_field.delete(0,END)
-         Type_field.delete(0,END)
+         Typechoosen.set("")
          
          current_item = table.focus()
          ID = table.item(current_item)['values'][0]
@@ -93,7 +96,7 @@ def mainframeAcc(ID,permission, parentForm):
          Balance_field.insert(0, Balance)
          Date_field.insert(0, Date)
          Date_field.config(state="disabled")
-         Type_field.insert(0, Type)
+         Typechoosen.set(Type)
          
          
     
@@ -179,8 +182,12 @@ def mainframeAcc(ID,permission, parentForm):
     Date_field = Entry(root,font="Times 12",state='readonly')
     Date_field.place(relwidth = .4, relheight = .06, relx =.2, rely =.79)
         
-    Type_field = Entry(root,font="Times 12")
-    Type_field.place(relwidth = .4, relheight = .06, relx =.2, rely =.86)
+    #Type_field = Entry(root,font="Times 12")
+    #Type_field.place(relwidth = .4, relheight = .06, relx =.2, rely =.86)
+    nType = StringVar()
+    Typechoosen = ttk.Combobox(root,textvariable = nType, state='readonly')
+    Typechoosen['values'] = ("normal","gold","platinum")
+    Typechoosen.place(relwidth = .4, relheight = .06, relx =.2, rely =.86)  
     
     
     # Button

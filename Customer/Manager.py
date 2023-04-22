@@ -2,65 +2,65 @@ from Customer import customer as ctm
 from tkinter import *
 from tkinter import ttk
 import sqlite3 as sql
-from tkinter.filedialog import askopenfilename
 from tkinter import messagebox
 from Customer import ManagerAcc as formAcc
-
+from unidecode import unidecode
 
 def mainframe(EmployeeID, permission, parentForm):
     parentForm.withdraw()
     
-    #conn = sql.connect("Bank.db")
-    
         
     def AddO():
-        Ngay = daychoosen.get()+"/"+monthchoosen.get()+"/"+yearchoosen.get()
-        if (permission == 'admin'):
-            cus = ctm.Customer(Name_field.get(),Ngay,Address_field.get(),Phone_field.get(),Sexchoosen.get(),employeechoosen.get())
-            if (Name_field.get() == ""):
-                messagebox.showerror("Error","Không được để trống tên!")
-            elif (Address_field.get() == ""):
-                messagebox.showerror("Error","Không được để trống địa chỉ!")
-            elif (Phone_field.get() == ""):
-                messagebox.showerror("Error","Không được để trống số điện thoại!")
-            elif (Sexchoosen.get() == ""):
-                messagebox.showerror("Error","Chưa chọn giới tính!")
-            elif (daychoosen.get() == "" or monthchoosen.get() == "" or yearchoosen.get() == ""):
-                messagebox.showerror("Error","Chưa chọn ngày tháng năm sinh!")
-            elif (employeechoosen.get() == ""):
-                messagebox.showerror("Error","Chưa chọn tài khoản nhân viên quản lý!")
-            else:
-                if (check_Date() == False):
-                    messagebox.showerror("Error","Lỗi ngày tháng năm sinh!")
-                elif (check_Phone() == False):
-                    messagebox.showerror("Error","Lỗi số điện thoại!")
-                else:
-                    a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn thêm khách hàng không?")
-                    if (a == 'yes'):
-                        cus.AddCustomer()
-                        Reload()
+        if (ID_field.get() != ""):
+            messagebox.showerror("Error","Phải để trống ID khi thêm! Vui lòng nhấn CLEAR.")
         else:
-            cus = ctm.Customer(Name_field.get(),Ngay,Address_field.get(),Phone_field.get(),Sexchoosen.get(),EmployeeID)
-            if (Name_field.get() == ""):
-                messagebox.showerror("Error","Không được để trống tên!")
-            elif (Address_field.get() == ""):
-                messagebox.showerror("Error","Không được để trống địa chỉ!")
-            elif (Phone_field.get() == ""):
-                messagebox.showerror("Error","Không được để trống số điện thoại!")
-            elif (Sexchoosen.get() == ""):
-                messagebox.showerror("Error","Chưa chọn giới tính!")
-            elif (daychoosen.get() == "" or monthchoosen.get() == "" or yearchoosen.get() == ""):
-                messagebox.showerror("Error","Chưa chọn ngày tháng năm sinh!")
-            else:
-                if (check_Date() == False):
-                    messagebox.showerror("Error","Lỗi ngày tháng năm sinh!")
-                elif (check_Phone() == False):
-                    messagebox.showerror("Error","Lỗi số điện thoại!")
+            Ngay = daychoosen.get()+"/"+monthchoosen.get()+"/"+yearchoosen.get()
+            if (permission == 'admin'):
+                cus = ctm.Customer(Name_field.get(),Ngay,Address_field.get(),Phone_field.get(),Sexchoosen.get(),employeechoosen.get())
+                if (Name_field.get() == ""):
+                    messagebox.showerror("Error","Không được để trống tên!")
+                elif (Address_field.get() == ""):
+                    messagebox.showerror("Error","Không được để trống địa chỉ!")
+                elif (Phone_field.get() == ""):
+                    messagebox.showerror("Error","Không được để trống số điện thoại!")
+                elif (Sexchoosen.get() == ""):
+                    messagebox.showerror("Error","Chưa chọn giới tính!")
+                elif (daychoosen.get() == "" or monthchoosen.get() == "" or yearchoosen.get() == ""):
+                    messagebox.showerror("Error","Chưa chọn ngày tháng năm sinh!")
+                elif (employeechoosen.get() == ""):
+                    messagebox.showerror("Error","Chưa chọn tài khoản nhân viên quản lý!")
                 else:
-                    a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn thêm khách hàng không?")
-                    if (a == 'yes'):
-                        cus.AddCustomer()
-                        Reload()
+                    if (check_Date() == False):
+                        messagebox.showerror("Error","Lỗi ngày tháng năm sinh!")
+                    elif (check_Phone() == False):
+                        messagebox.showerror("Error","Lỗi số điện thoại!")
+                    else:
+                        a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn thêm khách hàng không?")
+                        if (a == 'yes'):
+                            cus.AddCustomer()
+                            Reload()
+            else:
+                cus = ctm.Customer(Name_field.get(),Ngay,Address_field.get(),Phone_field.get(),Sexchoosen.get(),EmployeeID)
+                if (Name_field.get() == ""):
+                    messagebox.showerror("Error","Không được để trống tên!")
+                elif (Address_field.get() == ""):
+                    messagebox.showerror("Error","Không được để trống địa chỉ!")
+                elif (Phone_field.get() == ""):
+                    messagebox.showerror("Error","Không được để trống số điện thoại!")
+                elif (Sexchoosen.get() == ""):
+                    messagebox.showerror("Error","Chưa chọn giới tính!")
+                elif (daychoosen.get() == "" or monthchoosen.get() == "" or yearchoosen.get() == ""):
+                    messagebox.showerror("Error","Chưa chọn ngày tháng năm sinh!")
+                else:
+                    if (check_Date() == False):
+                        messagebox.showerror("Error","Lỗi ngày tháng năm sinh!")
+                    elif (check_Phone() == False):
+                        messagebox.showerror("Error","Lỗi số điện thoại!")
+                    else:
+                        a = messagebox.askquestion("Question",message="Bạn có chắc chắn muốn thêm khách hàng không?")
+                        if (a == 'yes'):
+                            cus.AddCustomer()
+                            Reload()
         
     def ShowO():
         for item in table.get_children():
@@ -97,17 +97,9 @@ def mainframe(EmployeeID, permission, parentForm):
             conn.close()
             
     def check_Date():
+        year_check = int(yearchoosen.get())
         if (monthchoosen.get() == "02"):
-            if (yearchoosen.get() == "1952" or yearchoosen.get() == "1956"
-                or yearchoosen.get() == "1960" or yearchoosen.get() == "1964"
-                or yearchoosen.get() == "1968" or yearchoosen.get() == "1972"
-                or yearchoosen.get() == "1976" or yearchoosen.get() == "1980" 
-                or yearchoosen.get() == "1984" or yearchoosen.get() == "1988"
-                or yearchoosen.get() == "1992" or yearchoosen.get() == "1992"
-                or yearchoosen.get() == "1996" or yearchoosen.get() == "2000"
-                or yearchoosen.get() == "2004" or yearchoosen.get() == "2008"
-                or yearchoosen.get() == "2012" or yearchoosen.get() == "2016"
-                or yearchoosen.get() == "2020"):
+            if ((year_check%400 == 0) or ((year_check%4 == 0) and (year_check%100 == 0))):
                 if (daychoosen.get() == "31" or daychoosen.get() == "30"):
                     return False
                 else : return True
@@ -216,6 +208,7 @@ def mainframe(EmployeeID, permission, parentForm):
                 formAcc.mainframeAcc(ID,permission, root)
     
     def Clear():
+        Search_Field.delete(0,END)
         ID_field.config(state="normal")
         ID_field.delete(0,END)
         ID_field.config(state="readonly")
@@ -231,6 +224,105 @@ def mainframe(EmployeeID, permission, parentForm):
         Signature_field.config(state="readonly")
         if permission == 'admin':
             employeechoosen.set("")
+            
+    def Search():
+        if (Search_Field.get() == ""):
+            for item in table.get_children():
+                table.delete(item)
+            ShowO()
+        else:
+            string_search = str(Search_Field.get())
+            if permission == "admin":
+                conn = sql.connect("Bank.db")
+                c = conn.cursor()
+                sql_name = """
+                    SELECT CustomerName FROM Customer 
+                """
+                c.execute(sql_name)
+                rows = c.fetchall()
+                data = []
+                for row in rows:
+                    data.append(row[0])
+                conn.close()
+                search_data = []
+                for i in data:
+                    try:
+                        name = str(i)
+                        i = str(i).lower()
+                        i = unidecode(str(i))
+                        string_search = string_search.lower()
+                        string_search = unidecode(string_search)
+                        if (str(i).index(string_search) >= 0 ):
+                            search_data.append(name)
+                    except:
+                        pass
+                if (not search_data):
+                    messagebox.showerror("Error","Không tìm thấy tên!")
+                else:
+                    for item in table.get_children():
+                        table.delete(item)
+                    for name in search_data:
+                        search_rows = []
+                        conn = sql.connect("Bank.db")
+                        c = conn.cursor()
+                        sql_show = """
+                            SELECT *
+                            FROM Customer
+                            WHERE CustomerName = '{0}'
+                        """.format(name)
+                        c.execute(sql_show)
+                        search_rows = c.fetchall()
+                        for row in search_rows:
+                            data_find = row 
+                        table.insert( parent = '', index = 'end', values = data_find)
+                        conn.close()
+            else:
+                conn = sql.connect("Bank.db")
+                c = conn.cursor()
+                sql_name = """
+                    SELECT CustomerName
+                    FROM Customer
+                    WHERE EmployeeManageID = '{0}'
+                """.format(EmployeeID)
+                c.execute(sql_name) # sql_show
+                rows = c.fetchall()
+                data = []
+                for row in rows:
+                    data.append(row[0])
+                conn.close()
+                search_data = []
+                for i in data:
+                    try:
+                        name = str(i)
+                        i = str(i).lower()
+                        i = unidecode(str(i))
+                        string_search = string_search.lower()
+                        string_search = unidecode(string_search)
+                        if (str(i).index(string_search) >= 0 ):
+                            search_data.append(name)
+                    except:
+                        pass
+                if (not search_data):
+                    messagebox.showerror("Error","Không tìm thấy tên!")
+                else:
+                    for item in table.get_children():
+                        table.delete(item)
+                    for name in search_data:
+                        search_rows = []
+                        conn = sql.connect("Bank.db")
+                        c = conn.cursor()
+                        sql_show = """
+                            SELECT *
+                            FROM Customer
+                            WHERE CustomerName = '{0}'
+                        """.format(name)
+                        c.execute(sql_show)
+                        search_rows = c.fetchall()
+                        for row in search_rows:
+                            data_find = row 
+                        table.insert( parent = '', index = 'end', values = data_find)
+                        conn.close()
+                        
         
     
     def displaySelectedItem(a):
@@ -292,8 +384,17 @@ def mainframe(EmployeeID, permission, parentForm):
     
     root.title("Quản lý khách hàng")
     
-    Label(root, text="Quản lý khách hàng",fg='red',font=('cambria',20)).place(relwidth = .5, relheight = .06, relx =.1, rely =.01)
+    Label(root, text="Quản lý khách hàng",fg='red',font=('cambria',20)).place(relwidth = .5, relheight = .06, relx =.1, rely =.0)
     
+    # thanh tìm kiếm
+    Label(root,text="Tìm kiếm theo tên: ").place(relwidth = .2, relheight = .04, relx =.1, rely =.07)
+    
+    Search_Field = Entry(root, font="Times 12")
+    Search_Field.place(relwidth = .4, relheight = .04, relx =.3, rely =.07)
+    
+    Button(root,text="SEARCH",command=Search).place(relwidth = .1, relheight = .04, relx =.71, rely =.07)
+    
+    # Button chức năng
     Button(root,text="ADD",command=AddO).place(relwidth = .3, relheight = .06, relx =.1, rely =.68)
     Button(root,text="EDIT",command=EditO).place(relwidth = .3, relheight = .06, relx =.1, rely =.79)
     Button(root,text="DELETE",command=DeleteO).place(relwidth = .3,relheight = .06,relx = .1,rely = .9)
@@ -324,7 +425,7 @@ def mainframe(EmployeeID, permission, parentForm):
     
     
     table.bind("<<TreeviewSelect>>",displaySelectedItem)
-    table.place(relwidth = .98,relheight= .4,relx=.01,rely=.07)
+    table.place(relwidth = .98,relheight= .35,relx=.01,rely=.12)
     ShowO()
     
     # Label
@@ -371,7 +472,7 @@ def mainframe(EmployeeID, permission, parentForm):
     monthchoosen['values'] = ("01", "02","03","04","05","06","07","08","09","10","11","12")
     monthchoosen.place(relwidth = .07, relheight =.04, relx = .2, rely = .58)
         
-    nyear = StringVar()
+    nyear = IntVar()
     yearchoosen = ttk.Combobox(root,textvariable = nyear,state="readonly")
     year = []
     for i in range(1950,2022):

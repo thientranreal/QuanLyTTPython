@@ -38,6 +38,11 @@ class SignatureValid:
             cusLabel = pd.predictSignature(path1, "TrainModel/signature_model.h5")
             # print(cusLabel)
             
+            if (cusLabel == -1):
+                self.regID = "N/A"
+                messagebox.showerror("Error", "Không nhận diện được chữ ký")
+                return
+            
             for label, folder in enumerate(os.listdir(dataset_path)):
                 # Set the path to the subfolder
                 folder_path = os.path.join(dataset_path, folder)
@@ -46,7 +51,12 @@ class SignatureValid:
                 for filename in os.listdir(folder_path):
                     if cusLabel == label:
                         self.regID = folder
-                        messagebox.showinfo("Xác nhận",
+                        
+                        if (CustomerId == self.regID):
+                            messagebox.showinfo("Xác nhận",
+                                            f"Đã nhận diện được chữ ký của {self.regID}")
+                        else:
+                            messagebox.showerror("Error",
                                             f"Đã nhận diện được chữ ký của {self.regID}")
                         return
         
